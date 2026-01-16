@@ -1,181 +1,238 @@
 "use client";
 
 import React from 'react';
-import Link from 'next/link';
 
-export default function StudentProfileView() {
-  // Mock data based on provided Schema
-  const student = {
-    StudentID: "S1001",
-    StudentName: "Alex Johnson",
-    EnrollmentNo: "ENR2022054",
-    MobileNo: "+1 (555) 123-4567",
-    EmailAddress: "alex.j@university.edu",
-    Description: "Final year Computer Science student focused on AI and Machine Learning. Active member of the coding club.",
-    Created: "Sept 01, 2022",
-  };
-
-  const mentoringHistory = [
+const StudentProfile = () => {
+  const sessions = [
     {
-      StudentMentoringID: "M901",
-      DateOfMentoring: "Dec 20, 2025",
-      ScheduledMeetingDate: "Dec 20, 2025",
-      NextMentoringDate: "Jan 15, 2026",
-      IssuesDiscussed: "Mid-term results and career path in cloud computing.",
-      AttendanceStatus: "Present",
-      StressLevel: "Low",
-      LearnerType: "Visual",
-      IsParentPresent: "No",
-      StaffOpinion: "Alex is showing consistent improvement in technical logic.",
-      StudentsOpinion: "Satisfied with the guidance provided for the project."
+      date: "May 12, 2024",
+      agenda: "Final project roadmap and technology stack selection.",
+      issues: ["Database design", "NextJS"],
+      parentStatus: true,
+      attendance: "Present",
     },
     {
-      StudentMentoringID: "M895",
-      DateOfMentoring: "Nov 12, 2025",
-      ScheduledMeetingDate: "Nov 10, 2025",
-      IssuesDiscussed: "Discussed difficulty in Discrete Mathematics.",
-      AttendanceStatus: "Absent",
-      AbsentRemarks: "Medical Emergency",
-      IsParentPresent: "Yes",
-      ParentName: "John Johnson",
-      ParentMobileNo: "+1 (555) 987-6543",
-      ParentsOpinion: "Happy with the college support system.",
-      StaffOpinion: "Needs to focus more on remedial classes.",
-      StressLevel: "Medium",
+      date: "Apr 24, 2024",
+      agenda: "Mid-term performance review and elective counseling.",
+      issues: ["Grade improvement"],
+      parentStatus: false,
+      attendance: "Present",
+    },
+    {
+      date: "Apr 02, 2024",
+      agenda: "Internship opportunities and resume building.",
+      issues: ["Career path", "Soft skills"],
+      parentStatus: true,
+      attendance: "Absent",
     }
   ];
 
   return (
-    <div className="space-y-6 animate-fade-in">
-      {/* Breadcrumbs */}
-      <div className="flex items-center gap-2 text-sm text-slate-500 mb-4">
-        <Link href="/dashboard" className="hover:text-[#135bec]">Dashboard</Link>
-        <span className="material-symbols-outlined text-sm">chevron_right</span>
-        <Link href="/dashboard/students" className="hover:text-[#135bec]">Students</Link>
-        <span className="material-symbols-outlined text-sm">chevron_right</span>
-        <span className="font-bold text-slate-900">{student.StudentName}</span>
-      </div>
+    <div className="bg-[#f8fafc] min-h-screen p-4 md:p-8 text-slate-900">
+      {/* Injecting the font and icons directly for App Router compatibility. 
+         Ideally, move these to your layout.tsx for better performance.
+      */}
+      <style jsx global>{`
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/icon?family=Material+Icons+Outlined');
+        
+        body {
+          font-family: 'Inter', sans-serif;
+        }
+        .material-icons-outlined {
+          vertical-align: middle;
+          line-height: 1;
+        }
+      `}</style>
 
-      {/* Profile Header */}
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-        <div className="flex flex-col md:flex-row gap-6 items-center justify-between">
-          <div className="flex flex-col sm:flex-row gap-6 items-center">
-            <div className="size-24 rounded-full bg-blue-50 border-4 border-slate-50 flex items-center justify-center text-[#135bec] text-3xl font-bold">
-              AJ
-            </div>
-            <div className="text-center sm:text-left">
-              <h1 className="text-2xl font-bold text-slate-900">{student.StudentName}</h1>
-              <p className="text-slate-500 font-medium">Enrollment: {student.EnrollmentNo}</p>
-              <div className="flex gap-2 mt-2 justify-center sm:justify-start">
-                <span className="bg-emerald-50 text-emerald-700 text-[11px] font-bold px-2 py-0.5 rounded-full">ACTIVE</span>
-                <span className="text-slate-400 text-[11px] font-medium flex items-center gap-1">
-                  <span className="material-symbols-outlined text-sm">calendar_today</span>
-                  Joined {student.Created}
-                </span>
+      <div className="max-w-7xl mx-auto space-y-6">
+        {/* Profile Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2 bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+            <div className="flex items-start justify-between mb-6">
+              <div className="flex items-center gap-5">
+                <div className="relative">
+                  <img 
+                    alt="Student Photo" 
+                    className="w-24 h-24 rounded-2xl object-cover ring-4 ring-slate-100" 
+                    src="https://ui-avatars.com/api/?name=Johnathan+Doe&background=4f46e5&color=fff"
+                  />
+                  <span className="absolute bottom-1 right-1 w-5 h-5 bg-green-500 border-4 border-white rounded-full"></span>
+                </div>
+                <div>
+                  <h2 className="text-2xl font-bold tracking-tight text-slate-900">Johnathan Doe</h2>
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className="px-2 py-0.5 bg-indigo-50 text-indigo-600 text-xs font-semibold rounded uppercase tracking-wider">Fast Learner</span>
+                    <span className="px-2 py-0.5 bg-slate-100 text-slate-600 text-xs font-semibold rounded uppercase tracking-wider">6th Semester</span>
+                  </div>
+                  <p className="text-slate-500 text-sm mt-2 flex items-center gap-1">
+                    <span className="material-icons-outlined text-base">apartment</span> 
+                    <span>Dept. of Computer Science Engineering</span>
+                  </p>
+                </div>
               </div>
             </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-6 py-6 border-y border-slate-100">
+              <div>
+                <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Enrollment No</p>
+                <p className="font-medium text-slate-900">EN2024001</p>
+              </div>
+              <div>
+                <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Mobile Number</p>
+                <p className="font-medium text-slate-900">+1 (555) 012-3456</p>
+              </div>
+              <div>
+                <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Email Address</p>
+                <p className="font-medium text-slate-900">j.doe@university.edu</p>
+              </div>
+              <div>
+                <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Current Sem</p>
+                <p className="font-medium text-slate-900">Semester 6</p>
+              </div>
+              <div>
+                <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Department</p>
+                <p className="font-medium text-slate-900">CSE - Artificial Intelligence</p>
+              </div>
+              <div>
+                <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Status</p>
+                <div className="flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-green-500"></span>
+                  <span className="font-medium text-slate-900">Active</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-6">
+              <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Internal Remarks & Description</p>
+              <p className="text-sm text-slate-600 leading-relaxed">
+                Enthusiastic about deep learning and research. Showing great potential in core algorithms. Needs slightly more focus on technical writing for publications. Consistent attendance but occasional stress spikes during exam cycles.
+              </p>
+            </div>
           </div>
-          <div className="flex gap-3">
-            <button className="flex items-center gap-2 px-4 py-2 border border-gray-200 rounded-lg text-sm font-bold hover:bg-slate-50">
-              <span className="material-symbols-outlined text-lg">edit</span> Edit
-            </button>
-            <button className="flex items-center gap-2 px-4 py-2 bg-[#135bec] text-white rounded-lg text-sm font-bold shadow-md shadow-[#135bec]/20">
-              <span className="material-symbols-outlined text-lg">add</span> New Mentoring
-            </button>
+
+          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex flex-col">
+            <h3 className="font-semibold mb-6 flex items-center gap-2 text-slate-900 text-lg">
+              <span className="material-icons-outlined text-slate-400">psychology</span>
+              Behavioral Insights
+            </h3>
+            <div className="space-y-6 flex-1">
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="text-sm text-slate-500 font-medium">Stress Level</label>
+                  <span className="px-2 py-0.5 bg-yellow-100 text-yellow-700 text-xs font-bold rounded">MEDIUM</span>
+                </div>
+                <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                  <div className="bg-yellow-500 h-full w-[65%]"></div>
+                </div>
+              </div>
+              <div>
+                <p className="text-sm text-slate-500 font-medium mb-2">Learner Classification</p>
+                <div className="flex flex-wrap gap-2">
+                  <span className="px-3 py-1 bg-indigo-50 text-indigo-600 text-xs font-bold rounded-full">Advanced</span>
+                  <span className="px-3 py-1 bg-slate-100 text-slate-500 text-xs font-bold rounded-full">Fast Learner</span>
+                </div>
+              </div>
+              <div className="p-4 bg-slate-50 rounded-lg border border-slate-100 mt-auto">
+                <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Staff Opinion Summary</p>
+                <p className="text-xs italic text-slate-600 leading-relaxed">
+                  "John demonstrates high analytical skills. He is responsive to feedback but often pushes himself too hard during project deadlines."
+                </p>
+                <div className="mt-4 flex items-center gap-2">
+                  <div className="w-6 h-6 rounded-full bg-indigo-600 flex items-center justify-center text-[8px] font-bold text-white uppercase">RS</div>
+                  <span className="text-[11px] font-medium text-slate-500">Mentored by Dr. Robert Smith</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left Column - Student Info */}
-        <div className="space-y-6">
-          <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-            <div className="p-4 border-b border-gray-100 bg-slate-50/50">
-              <h3 className="font-bold text-slate-900 text-sm">Student Details</h3>
-            </div>
-            <div className="p-5 space-y-4">
-              <div>
-                <p className="text-[10px] font-bold text-slate-400 uppercase">Contact Number</p>
-                <p className="text-sm font-medium">{student.MobileNo}</p>
-              </div>
-              <div>
-                <p className="text-[10px] font-bold text-slate-400 uppercase">Email Address</p>
-                <p className="text-sm font-medium">{student.EmailAddress}</p>
-              </div>
-              <div>
-                <p className="text-[10px] font-bold text-slate-400 uppercase">Description</p>
-                <p className="text-sm text-slate-600 leading-relaxed">{student.Description}</p>
-              </div>
-            </div>
+        {/* Stats Bar */}
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 grid grid-cols-2 md:grid-cols-4 gap-4 items-center text-center">
+          <div className="space-y-1">
+            <p className="text-3xl font-extrabold text-indigo-600">14</p>
+            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Total Sessions</p>
           </div>
-
-          <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-            <div className="p-4 border-b border-gray-100 bg-slate-50/50">
-              <h3 className="font-bold text-slate-900 text-sm">Parent Information</h3>
+          <div className="space-y-1 border-l border-slate-100">
+            <p className="text-3xl font-extrabold text-slate-900">92%</p>
+            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Avg. Attendance</p>
+          </div>
+          <div className="space-y-1 border-l border-slate-100">
+            <p className="text-3xl font-extrabold text-slate-900">4.8</p>
+            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Staff Rating</p>
+          </div>
+          <div className="space-y-1 border-l border-slate-100">
+            <div className="flex items-center justify-center gap-1 text-green-600">
+              <span className="material-icons-outlined text-2xl">check_circle</span>
+              <p className="text-xl font-extrabold text-slate-900 uppercase">On Track</p>
             </div>
-            <div className="p-5">
-              {mentoringHistory[1].ParentName ? (
-                <div className="space-y-3">
-                   <p className="text-sm font-bold">{mentoringHistory[1].ParentName}</p>
-                   <p className="text-xs text-slate-500">{mentoringHistory[1].ParentMobileNo}</p>
-                   <div className="text-xs italic text-slate-500 bg-slate-50 p-2 rounded">
-                     &quot;{mentoringHistory[1].ParentsOpinion}&quot;
-                   </div>
-                </div>
-              ) : <p className="text-sm text-slate-400">No parent data linked.</p>}
-            </div>
+            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Progress Status</p>
           </div>
         </div>
 
-        {/* Right Column - Mentoring History */}
-        <div className="lg:col-span-2 space-y-6">
-          <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-            <div className="p-4 border-b border-gray-100 flex justify-between items-center">
-              <h3 className="font-bold text-slate-900">Mentoring History</h3>
-              <span className="text-xs font-bold text-slate-400">{mentoringHistory.length} Sessions</span>
-            </div>
-            <div className="divide-y divide-gray-100">
-              {mentoringHistory.map((session) => (
-                <div key={session.StudentMentoringID} className="p-6 hover:bg-slate-50 transition-colors">
-                  <div className="flex justify-between items-start mb-4">
-                    <div className="flex gap-4">
-                      <div className="size-12 bg-blue-50 rounded-lg flex flex-col items-center justify-center text-[#135bec] border border-blue-100">
-                         <span className="text-[10px] font-black uppercase leading-none">Date</span>
-                         <span className="text-lg font-bold leading-none mt-1">{session.DateOfMentoring.split(' ')[1]}</span>
+        {/* Table */}
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+          <div className="p-6 border-b border-slate-100 flex justify-between items-center">
+            <h3 className="font-bold text-lg text-slate-900">Mentoring Session History</h3>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left">
+              <thead className="bg-slate-50 text-slate-400 text-[10px] font-bold uppercase tracking-[0.1em]">
+                <tr>
+                  <th className="px-6 py-4">Date</th>
+                  <th className="px-6 py-4">Agenda / Objectives</th>
+                  <th className="px-6 py-4">Issues Discussed</th>
+                  <th className="px-6 py-4">Parent Status</th>
+                  <th className="px-6 py-4">Attendance</th>
+                 
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-50 text-sm">
+                {sessions.map((session, index) => (
+                  <tr key={index} className="hover:bg-slate-50/50 transition-colors">
+                    <td className="px-6 py-4 whitespace-nowrap font-semibold text-slate-900">{session.date}</td>
+                    <td className="px-6 py-4 max-w-xs truncate text-slate-500 font-medium">{session.agenda}</td>
+                    <td className="px-6 py-4">
+                      <div className="flex gap-1.5 flex-wrap">
+                        {session.issues.map((issue, i) => (
+                          <span key={i} className="px-2 py-0.5 bg-slate-100 border border-slate-200 rounded text-[10px] font-bold text-slate-500 uppercase">{issue}</span>
+                        ))}
                       </div>
-                      <div>
-                        <h4 className="font-bold text-slate-900">{session.IssuesDiscussed}</h4>
-                        <p className="text-xs text-slate-500 mt-1">Learner Type: <span className="font-bold text-slate-700">{session.LearnerType || 'N/A'}</span> • Stress Level: <span className="font-bold text-slate-700">{session.StressLevel}</span></p>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className={`flex items-center gap-1.5 font-bold text-xs ${session.parentStatus ? 'text-green-600' : 'text-slate-300'}`}>
+                        <span className="material-icons-outlined text-sm">{session.parentStatus ? 'how_to_reg' : 'close'}</span>
+                        {session.parentStatus ? 'YES' : 'NO'}
                       </div>
-                    </div>
-                    <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold ${session.AttendanceStatus === 'Present' ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'}`}>
-                      {session.AttendanceStatus.toUpperCase()}
-                    </span>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                    <div className="bg-slate-50 p-3 rounded-lg border border-slate-100">
-                      <p className="text-[10px] font-bold text-slate-400 uppercase mb-1">Staff Opinion</p>
-                      <p className="text-xs text-slate-600 italic">"{session.StaffOpinion}"</p>
-                    </div>
-                    <div className="bg-blue-50/30 p-3 rounded-lg border border-blue-100/50">
-                      <p className="text-[10px] font-bold text-slate-400 uppercase mb-1">Student Opinion</p>
-                      <p className="text-xs text-slate-600 italic">"{session.StudentsOpinion || 'No opinion recorded'}"</p>
-                    </div>
-                  </div>
-
-                  {session.NextMentoringDate && (
-                    <div className="mt-4 flex items-center gap-2 text-[11px] font-bold text-[#135bec]">
-                      <span className="material-symbols-outlined text-sm">event_repeat</span>
-                      Next Mentoring Scheduled: {session.NextMentoringDate}
-                    </div>
-                  )}
-                </div>
-              ))}
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className={`px-2.5 py-1 rounded text-[10px] font-black uppercase tracking-widest ${
+                        session.attendance === 'Present' 
+                        ? 'bg-green-100 text-green-700' 
+                        : 'bg-red-100 text-red-700'
+                      }`}>
+                        {session.attendance}
+                      </span>
+                    </td>
+                    
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <div className="p-4 bg-slate-50/50 border-t border-slate-100 flex justify-between items-center">
+            <p className="text-xs text-slate-400 font-bold uppercase tracking-wider">
+              Showing <span className="text-slate-900">{sessions.length}</span> of 14 sessions
+            </p>
+            <div className="flex gap-2">
+              <button className="px-3 py-1.5 rounded border border-slate-200 text-xs font-bold text-slate-400 disabled:opacity-50" disabled>PREV</button>
+              <button className="px-3 py-1.5 rounded border border-slate-200 text-xs font-bold text-slate-600 hover:bg-white transition-colors">NEXT</button>
             </div>
           </div>
         </div>
       </div>
     </div>
   );
-}
+};
+
+export default StudentProfile;

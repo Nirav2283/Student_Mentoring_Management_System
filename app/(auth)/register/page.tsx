@@ -2,6 +2,8 @@
 
 import React from "react";
 import Link from "next/link";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 const SidebarFeature = ({
   icon,
@@ -23,7 +25,15 @@ const SidebarFeature = ({
   </div>
 );
 
-const InputField = ({ label, id, icon, placeholder, type = "text" }: any) => (
+const InputField = ({
+  label,
+  id,
+  value,
+  onChange,
+  icon,
+  placeholder,
+  type = "text",
+}: any) => (
   <div className="space-y-1.5">
     <label className="block text-sm font-medium text-gray-700" htmlFor={id}>
       {label}
@@ -38,12 +48,53 @@ const InputField = ({ label, id, icon, placeholder, type = "text" }: any) => (
         name={id}
         placeholder={placeholder}
         type={type}
+        value={value}
+        onChange={onChange}
       />
     </div>
   </div>
 );
 
 export default function CollegeRegistration() {
+  const router = useRouter();
+  const [form, setForm] = useState({
+    CollegeName: "",
+    CollegeCode: "",
+    Email: "",
+    Address: "",
+    Phone: "",
+  });
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+
+    if (!form.CollegeName || !form.CollegeCode || !form.Email) {
+      setError("All fields are required");
+      setLoading(false);
+      return;
+    }
+
+    const res = await fetch("/api/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(form),
+    });
+
+    const data = await res.json();
+    // console.log(data)
+
+    if (!res.ok) {
+      setError(data.error || "Registration failed");
+      setLoading(false);
+      return;
+    }
+
+    router.push(`/register/setup-admin?CollegeID=${data.college.CollegeID}`);
+  };
   return (
     <div className="bg-[#f6f6f8] text-[#111318] font-sans min-h-screen flex flex-col">
       {/* Material Symbols */}
@@ -151,7 +202,7 @@ export default function CollegeRegistration() {
               </p>
             </div>
 
-            <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
+            <form className="space-y-6" onSubmit={handleSubmit}>
               {/* Institution Details */}
               <div className="space-y-4">
                 <h3 className="text-xs font-bold text-[#135bec] uppercase tracking-widest flex items-center gap-2">
@@ -164,12 +215,20 @@ export default function CollegeRegistration() {
                     id="college-name"
                     icon="apartment"
                     placeholder="e.g. Springfield University"
+                    value={form.CollegeName}
+                    onChange={(e: any) => {
+                      setForm({ ...form, CollegeName: e.target.value });
+                    }}
                   />
                   <InputField
                     label="Institution Code"
                     id="college-code"
                     icon="pin"
                     placeholder="e.g. SU-2024"
+                    value={form.CollegeCode}
+                    onChange={(e: any) => {
+                      setForm({ ...form, CollegeCode: e.target.value });
+                    }}
                   />
                 </div>
                 <InputField
@@ -196,6 +255,10 @@ export default function CollegeRegistration() {
                     icon="mail"
                     placeholder="college@college.ac.in"
                     type="email"
+                    value={form.Email}
+                    onChange={(e: any) => {
+                      setForm({ ...form, Email: e.target.value });
+                    }}
                   />
                   <InputField
                     label="Phone Number"
@@ -203,6 +266,10 @@ export default function CollegeRegistration() {
                     icon="phone"
                     placeholder="+1 (555) 000-0000"
                     type="tel"
+                    value={form.Phone}
+                    onChange={(e: any) => {
+                      setForm({ ...form, Phone: e.target.value });
+                    }}
                   />
                 </div>
                 <div className="space-y-1.5">
@@ -219,6 +286,10 @@ export default function CollegeRegistration() {
                       className="block w-full pl-10 rounded-lg border-gray-300 focus:border-[#135bec] focus:ring-[#135bec] sm:text-sm py-2.5 transition-colors resize-none"
                       rows={3}
                       placeholder="123 University Ave, City, State"
+                      value={form.Address}
+                      onChange={(e: any) => {
+                        setForm({ ...form, Address: e.target.value });
+                      }}
                     />
                   </div>
                 </div>
@@ -229,6 +300,7 @@ export default function CollegeRegistration() {
                   className="h-4 w-4 rounded border-gray-300 text-[#135bec] focus:ring-[#135bec] mt-1"
                   id="terms"
                   type="checkbox"
+                  required
                 />
                 <label className="ml-3 text-sm text-gray-600" htmlFor="terms">
                   I agree to the{" "}
@@ -248,19 +320,22 @@ export default function CollegeRegistration() {
                   .
                 </label>
               </div>
-
+              {error && (
+                <p className="text-sm text-red-600 font-medium bg-red-50 p-2 rounded">
+                  {error}
+                </p>
+              )}
               <div className="pt-4">
-                <Link href={"/register/setup-admin"}>
-                  <button
-                    className="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-lg text-sm font-bold text-white bg-[#135bec] hover:bg-blue-700 transition-all transform hover:scale-[1.01]"
-                    type="submit"
-                  >
-                    Register College
-                    <span className="material-symbols-outlined text-[20px] ml-2">
-                      arrow_forward
-                    </span>
-                  </button>
-                </Link>
+                <button
+                  className="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-lg text-sm font-bold text-white bg-[#135bec] hover:bg-blue-700 transition-all transform hover:scale-[1.01]"
+                  type="submit"
+                  disabled={loading}
+                >
+                  {loading ? "Registering..." : "Register College"}
+                  <span className="material-symbols-outlined text-[20px] ml-2">
+                    arrow_forward
+                  </span>
+                </button>
               </div>
             </form>
           </div>

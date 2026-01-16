@@ -58,7 +58,7 @@ const InputField = ({ label, id, icon, placeholder, type = "text", isTextArea }:
   </div>
 );
 
-export default function AddStudentStaff({
+export default function AddStudentMentor({
   title,
   subtitle,
   breadcrumbLabel,

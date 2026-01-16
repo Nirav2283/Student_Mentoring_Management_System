@@ -3,37 +3,37 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 
-// Sample Data mapped from the Database Table (Staff -> Mentor)
+// Sample Data mapped from the Database Table
 const mentorsData = [
-  { 
-    mentorId: "MNT-2024-001", 
-    mentorName: "Dr. Robert Ford", 
-    emailAddress: "r.ford@university.edu", 
+  {
+    mentorId: "MNT-2024-001",
+    mentorName: "Dr. Robert Ford",
+    emailAddress: "r.ford@university.edu",
     mobileNo: "+1 (555) 010-1234",
     designation: "Senior Professor",
     description: "Head of AI Research Department",
     created: "2024-01-15",
-    initial: "RF" 
+    initial: "RF"
   },
-  { 
-    mentorId: "MNT-2024-002", 
-    mentorName: "Sarah Connor", 
-    emailAddress: "s.connor@university.edu", 
+  {
+    mentorId: "MNT-2024-002",
+    mentorName: "Sarah Connor",
+    emailAddress: "s.connor@university.edu",
     mobileNo: "+1 (555) 010-5678",
     designation: "Associate Lecturer",
     description: "Specializes in Cyber Security",
     created: "2024-02-10",
-    initial: "SC" 
+    initial: "SC"
   },
-  { 
-    mentorId: "MNT-2024-003", 
-    mentorName: "Mike Brown", 
-    emailAddress: "m.brown@university.edu", 
+  {
+    mentorId: "MNT-2024-003",
+    mentorName: "Mike Brown",
+    emailAddress: "m.brown@university.edu",
     mobileNo: "+1 (555) 010-9988",
     designation: "Department Head",
     description: "Structural Engineering Lead",
     created: "2023-11-20",
-    initial: "MB" 
+    initial: "MB"
   }
 ];
 
@@ -47,14 +47,14 @@ export default function MentorListPage() {
         <div className="flex flex-col sm:flex-row gap-3 flex-1">
           <div className="relative flex-1 min-w-[240px]">
             <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-slate-400 text-xl">search</span>
-            <input 
-              className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-gray-200 bg-slate-50 text-sm focus:ring-2 focus:ring-[#135bec]/20 focus:border-[#135bec] transition-all outline-none" 
-              placeholder="Search by Mentor Name, ID, or Email..." 
+            <input
+              className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-gray-200 bg-slate-50 text-sm focus:ring-2 focus:ring-[#135bec]/20 focus:border-[#135bec] transition-all outline-none"
+              placeholder="Search by Mentor Name, ID, or Email..."
               type="text"
             />
           </div>
         </div>
-        
+
         <div className="flex items-center gap-3">
           <button className="flex items-center gap-2 px-4 py-2.5 rounded-lg border border-gray-200 bg-white text-slate-600 hover:bg-slate-50 transition-all text-sm font-medium">
             <span className="material-symbols-outlined text-[20px]">download</span>
@@ -123,9 +123,11 @@ export default function MentorListPage() {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <button className="p-1.5 text-slate-400 hover:text-[#135bec] hover:bg-blue-50 rounded-lg transition-colors" title="View Mentor Profile">
-                        <span className="material-symbols-outlined text-[20px]">visibility</span>
-                      </button>
+                      <Link href={`mentors/${mentor.mentorId}`}>
+                        <button className="p-1.5 text-slate-400 hover:text-[#135bec] hover:bg-blue-50 rounded-lg transition-colors" title="View Mentor Profile">
+                          <span className="material-symbols-outlined text-[20px]">visibility</span>
+                        </button>
+                      </Link>
                       <button className="p-1.5 text-slate-400 hover:text-slate-900 hover:bg-gray-100 rounded-lg transition-colors" title="Edit Mentor">
                         <span className="material-symbols-outlined text-[20px]">edit</span>
                       </button>

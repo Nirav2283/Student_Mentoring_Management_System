@@ -20,10 +20,10 @@ const StatItem = ({ value, label }: { value: string; label: string }) => (
 export default function MentoraLanding() {
   return (
     <div className="bg-[#f6f6f8] text-[#111318] font-sans overflow-x-hidden min-h-screen flex flex-col">
-      
+
       <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=block" />
 
-    
+
       <header className="w-full border-b border-gray-200 bg-white/80 backdrop-blur-md sticky top-0 z-50">
         <div className="max-w-[1280px] mx-auto px-4 sm:px-10 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -32,27 +32,27 @@ export default function MentoraLanding() {
             </div>
             <h2 className="text-[#111318] text-lg font-bold leading-tight tracking-[-0.015em]">Mentora</h2>
           </div>
-         <Link href={'/login'}>
-           <button className="flex items-center justify-center rounded-lg h-9 px-4 bg-blue-800 hover:bg-blue-900 text-[#ffffff] text-sm font-bold transition-colors">
-            Login
-          </button>
-         </Link>
+          <Link href={'/login'}>
+            <button className="flex items-center justify-center rounded-lg h-9 px-4 bg-blue-800 hover:bg-blue-900 text-[#ffffff] text-sm font-bold transition-colors">
+              Login
+            </button>
+          </Link>
         </div>
       </header>
 
       <main className="flex-grow flex flex-col items-center w-full">
         <div className="w-full max-w-[1280px] p-4 py-8 sm:py-12 flex flex-col items-center">
-        
+
           <div className="relative w-full overflow-hidden rounded-xl bg-gray-900 shadow-xl min-h-[500px] flex flex-col items-center justify-center text-center px-4 sm:px-10 mb-12">
             <div className="absolute inset-0 z-0">
-              <img 
-                alt="Mentors collaborating" 
-                className="w-full h-full object-cover opacity-40" 
-                src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&q=80" 
+              <img
+                alt="Mentors collaborating"
+                className="w-full h-full object-cover opacity-40"
+                src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&q=80"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/30"></div>
             </div>
-            
+
             <div className="relative z-10 max-w-[800px] flex flex-col gap-8 items-center animate-fade-in-up">
               <div className="flex flex-col gap-4">
                 <span className="material-symbols-outlined text-white/80 text-4xl mb-2 mt-5">format_quote</span>
@@ -68,9 +68,9 @@ export default function MentoraLanding() {
                 </h2>
                 <Link href={'/register'}>
                   <button className="flex min-w-[160px] items-center mb-5 justify-center rounded-lg h-12 px-8 bg-[#135bec] hover:bg-[#135bec]/90 text-white text-base font-bold shadow-lg shadow-[#135bec]/25 transition-all transform hover:scale-105">
-                  Get Started
-                  <span className="material-symbols-outlined text-[20px] ml-2">arrow_forward</span>
-                </button>
+                    Get Started
+                    <span className="material-symbols-outlined text-[20px] ml-2">arrow_forward</span>
+                  </button>
                 </Link>
               </div>
             </div>
@@ -92,12 +92,12 @@ export default function MentoraLanding() {
                   Why Mentora
                 </div>
                 <h2 className="text-3xl md:text-4xl font-bold text-[#111318] leading-tight">
-                  Bridge the gap between <br/><span className="text-[#135bec]">academic theory</span> and <span className="text-[#135bec]">real-world success</span>.
+                  Bridge the gap between <br /><span className="text-[#135bec]">academic theory</span> and <span className="text-[#135bec]">real-world success</span>.
                 </h2>
                 <p className="text-lg text-gray-600 leading-relaxed">
                   Traditional education gives you the foundation. Mentora gives you the blueprint. Connect with seniors, alumni, and industry veterans.
                 </p>
-                
+
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
                   {['Curated Connections', 'Structured Growth', 'Resource Library', 'Global Network'].map((text) => (
                     <div key={text} className="flex items-start gap-3">
@@ -115,9 +115,9 @@ export default function MentoraLanding() {
               {/* <div className="flex-1 w-full relative px-4 md:px-0">
                 <div className="relative w-full aspect-square max-w-[450px] mx-auto">
                   <div className="absolute inset-0 bg-gradient-to-tr from-blue-100 to-purple-50 rounded-full opacity-70 blur-3xl"></div> */}
-                  
-                  {/* Floating Mentor Card */}
-                  {/* <div className="absolute top-8 left-0 right-8 bg-white p-6 rounded-2xl shadow-xl border border-gray-100 animate-float z-10">
+
+              {/* Floating Mentor Card */}
+              {/* <div className="absolute top-8 left-0 right-8 bg-white p-6 rounded-2xl shadow-xl border border-gray-100 animate-float z-10">
                     <div className="flex justify-between items-start mb-4">
                       <div className="flex items-center gap-4">
                         <div className="size-14 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-500">
@@ -135,8 +135,8 @@ export default function MentoraLanding() {
                     </div>
                   </div> */}
 
-                  {/* Notification Card */}
-                  {/* <div className="absolute -bottom-4 -right-4 md:right-0 w-64 bg-white p-4 rounded-xl shadow-2xl border border-gray-100 animate-float-delayed z-20">
+              {/* Notification Card */}
+              {/* <div className="absolute -bottom-4 -right-4 md:right-0 w-64 bg-white p-4 rounded-xl shadow-2xl border border-gray-100 animate-float-delayed z-20">
                     <div className="flex justify-between items-center mb-3">
                       <span className="text-[10px] font-bold text-gray-400 uppercase">Next Session</span>
                       <span className="bg-red-50 text-red-600 text-[10px] px-2 py-0.5 rounded-full font-bold">15 min</span>

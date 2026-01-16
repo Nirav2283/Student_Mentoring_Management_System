@@ -6,7 +6,7 @@ import { useParams } from 'next/navigation';
 
 export default function LoginPage() {
   const params = useParams();
-  const role = params.role as string; // 'staff', 'student', or 'admin'
+  const role = params.role as string; // 'mentor', 'student', or 'admin'
   const [showPassword, setShowPassword] = useState(false);
 
   // Dynamic content based on the route
@@ -16,10 +16,10 @@ export default function LoginPage() {
       desc: "Manage system settings and analytics.",
       placeholder: "admin@college.edu",
     },
-    staff: {
-      title: "Staff Portal",
+    mentor: {
+      title: "Mentor Portal",
       desc: "Manage student rosters and programs.",
-      placeholder: "staff@college.edu",
+      placeholder: "mentor@college.edu",
     },
     student: {
       title: "Student Portal",
@@ -36,16 +36,16 @@ export default function LoginPage() {
       <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=block" />
 
       <div className="flex min-h-screen w-full flex-row overflow-hidden">
-        
+
         {/* Left Side: Visual/Branding (Hidden on mobile) */}
         <div className="hidden lg:flex lg:w-1/2 relative bg-[#101622] items-center justify-center overflow-hidden">
-          <div 
-            className="absolute inset-0 z-0 bg-cover bg-center" 
+          <div
+            className="absolute inset-0 z-0 bg-cover bg-center"
             style={{ backgroundImage: 'url("https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80")' }}
           ></div>
           <div className="absolute inset-0 z-10 bg-[#135bec]/80 mix-blend-multiply"></div>
           <div className="absolute inset-0 z-10 bg-gradient-to-t from-black/60 to-transparent"></div>
-          
+
           <div className="relative z-20 flex flex-col items-start justify-end h-full w-full p-16 pb-24 max-w-2xl">
             <div className="mb-6 rounded-full bg-white/10 backdrop-blur-sm px-4 py-1.5 border border-white/20">
               <span className="text-xs font-bold uppercase tracking-wider text-white">
@@ -64,7 +64,7 @@ export default function LoginPage() {
         {/* Right Side: Login Form */}
         <div className="flex w-full lg:w-1/2 flex-col justify-center items-center bg-white px-6 py-12 lg:px-20 relative">
           <div className="w-full max-w-[440px] flex flex-col gap-8">
-            
+
             {/* Logo */}
             <Link href="/" className="flex items-center gap-3">
               <div className="size-10 text-[#135bec]">
@@ -87,7 +87,7 @@ export default function LoginPage() {
             <form className="flex flex-col gap-5 w-full" onSubmit={(e) => e.preventDefault()}>
               <label className="flex flex-col w-full">
                 <p className="text-[#111318] text-sm font-medium pb-2">Email Address</p>
-                <input 
+                <input
                   className="form-input w-full rounded-lg border-[#dbdfe6] focus:ring-2 focus:ring-[#135bec]/20 focus:border-[#135bec] h-12 p-[15px] transition-colors"
                   placeholder={content.placeholder}
                   type="email"
@@ -98,13 +98,13 @@ export default function LoginPage() {
               <label className="flex flex-col w-full">
                 <p className="text-[#111318] text-sm font-medium pb-2">Password</p>
                 <div className="relative flex w-full items-stretch">
-                  <input 
+                  <input
                     className="form-input w-full rounded-lg border-[#dbdfe6] focus:ring-2 focus:ring-[#135bec]/20 focus:border-[#135bec] h-12 p-[15px] pr-12 transition-colors"
                     placeholder="Enter your password"
                     type={showPassword ? "text" : "password"}
                     required
                   />
-                  <button 
+                  <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-0 top-0 h-full px-3 flex items-center justify-center text-[#616f89] hover:text-[#111318]"
@@ -117,14 +117,30 @@ export default function LoginPage() {
               </label>
 
               <div className="flex justify-end">
-                <Link href="#" className="text-sm font-medium text-[#135bec] hover:text-blue-700">
+                <Link href={`/forgot-password`} className="text-sm font-medium text-[#135bec] hover:text-blue-700">
                   Forgot Password?
                 </Link>
               </div>
 
-              <button className="flex w-full items-center justify-center rounded-lg bg-[#135bec] h-12 px-6 text-white text-base font-bold hover:bg-blue-700 transition-all shadow-md mt-2">
-                Sign In to {content.title}
-              </button>
+              {role == 'admin' && <Link href={"/admin/dashboard"}>
+                <button className="flex w-full items-center justify-center rounded-lg bg-[#135bec] h-12 px-6 text-white text-base font-bold hover:bg-blue-700 transition-all shadow-md mt-2">
+                  Sign In to {content.title}
+                </button>
+              </Link>}
+
+              {role == 'student' && <Link href={"/student/dashboard"}>
+                <button className="flex w-full items-center justify-center rounded-lg bg-[#135bec] h-12 px-6 text-white text-base font-bold hover:bg-blue-700 transition-all shadow-md mt-2">
+                  Sign In to {content.title}
+                </button>
+              </Link>}
+
+              {role == 'mentor' && <Link href={"/mentor/dashboard"}>
+                <button className="flex w-full items-center justify-center rounded-lg bg-[#135bec] h-12 px-6 text-white text-base font-bold hover:bg-blue-700 transition-all shadow-md mt-2">
+                  Sign In to {content.title}
+                </button>
+              </Link>}
+
+
             </form>
 
             {/* Footer */}

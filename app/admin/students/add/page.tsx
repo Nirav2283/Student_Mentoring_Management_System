@@ -1,5 +1,5 @@
 "use client"
-import AddStudentStaff from "@/app/ui/AddStudentStaff";
+import AddStudentMentor from "@/app/ui/AddStudentMentor";
 
 export default function AddStudentPage() {
   const studentSections = [
@@ -19,11 +19,11 @@ export default function AddStudentPage() {
         { id: "phone", label: "Mobile Number", icon: "call", placeholder: "+91 00000 00000", type: "tel" },
         { id: "notes", label: "Additional Notes", icon: "description", placeholder: "Description(optional)...", isTextArea: true },
       ]
-    }
+    },
   ];
 
   return (
-    <AddStudentStaff
+    <AddStudentMentor
       title="Add New Student"
       subtitle="Please fill in the personal and academic details below."
       breadcrumbLabel="Student Directory"

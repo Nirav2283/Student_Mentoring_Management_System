@@ -10,23 +10,23 @@ interface UserRoleCardProps {
 }
 
 const UserRoleCard = ({ icon, title, description, buttonText, href }: UserRoleCardProps) => (
-  <Link 
+  <Link
     href={href}
     className="group relative flex flex-col items-center text-center p-8 md:p-10 rounded-2xl bg-white border border-gray-200 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden cursor-pointer"
   >
     {/* Animated top border line */}
     <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[#135bec] to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-    
+
     <div className="size-24 rounded-2xl bg-blue-50 text-[#135bec] flex items-center justify-center mb-6 group-hover:bg-[#135bec] group-hover:text-white transition-colors duration-300">
       <span className="material-symbols-outlined text-5xl">{icon}</span>
     </div>
-    
+
     <h2 className="text-2xl font-bold text-[#111318] mb-3">{title}</h2>
-    
+
     <p className="text-gray-500 mb-8 leading-relaxed text-sm md:text-base">
       {description}
     </p>
-    
+
     <div className="mt-auto w-full">
       <div className="w-full py-3 px-4 bg-transparent border border-gray-300 rounded-lg text-gray-700 font-semibold group-hover:bg-[#135bec] group-hover:border-[#135bec] group-hover:text-white transition-all duration-300 flex items-center justify-center gap-2">
         <span>{buttonText}</span>
@@ -60,7 +60,7 @@ export default function LoginSelection() {
       {/* Main Content */}
       <main className="flex-grow flex flex-col items-center justify-center p-4 md:p-8">
         <div className="w-full max-w-[1280px] flex flex-col gap-8 md:gap-12 animate-fade-in-up">
-          
+
           <div className="text-center flex flex-col gap-3">
             <h1 className="text-[#111318] text-3xl md:text-5xl font-black tracking-tight">
               Select User Type
@@ -71,21 +71,21 @@ export default function LoginSelection() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 w-full">
-            <UserRoleCard 
+            <UserRoleCard
               icon="supervisor_account"
-              title="Staff Login"
+              title="Mentor Login"
               description="Access administrative tools, manage student rosters, and track mentorship programs."
-              buttonText="Continue as Staff"
-              href="/login/staff"
+              buttonText="Continue as Mentor"
+              href="/login/mentor"
             />
-            <UserRoleCard 
+            <UserRoleCard
               icon="school"
               title="Student Login"
               description="Connect with mentors, track your learning journey, and access exclusive resources."
               buttonText="Continue as Student"
               href="/login/student"
             />
-            <UserRoleCard 
+            <UserRoleCard
               icon="admin_panel_settings"
               title="Admin Login"
               description="Manage system settings, user permissions, and view platform analytics."

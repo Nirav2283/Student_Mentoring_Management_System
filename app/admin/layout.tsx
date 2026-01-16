@@ -53,20 +53,20 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <p className="px-4 mt-6 mb-2 text-xs font-bold text-slate-400 uppercase tracking-wider">Student Management</p>
             <NavItem icon="groups" label="Student List" href="/admin/students" />
             <NavItem icon="person_add" label="Add New Student" href="/admin/students/add" />
-            <NavItem icon="upload_file" label="Bulk Import" href="/admin/students/import" />
+            {/* <NavItem icon="upload_file" label="Bulk Import" href="/admin/students/import" /> */}
             
       
             <p className="px-4 mt-6 mb-2 text-xs font-bold text-slate-400 uppercase tracking-wider">Mentor Management</p>
 
             <NavItem icon="groups" label="Mentor List" href="/admin/mentors" />
             <NavItem icon="person_add" label="Add New Mentor" href="/admin/mentors/add" />
-            <NavItem icon="upload_file" label="Bulk Import" href="/admin/mentors/import" />
+            {/* <NavItem icon="upload_file" label="Bulk Import" href="/admin/mentors/import" /> */}
             <NavItem icon="assignment_ind" label="Assign Mentor" href="/admin/mentors/assignmentor" />
             {/* <NavItem icon="domain" label="College Management" href="/dashboard/colleges" /> */}
             
             <p className="px-4 mt-6 mb-2 text-xs font-bold text-slate-400 uppercase tracking-wider">Analysis</p>
-            <NavItem icon="bar_chart" label="Reporting & Stats" href="/dashboard/reports" />
-            <NavItem icon="settings" label="System Settings" href="/dashboard/settings" />
+            <NavItem icon="bar_chart" label="Reporting & Stats" href="/admin/reports" />
+            <NavItem icon="settings" label="Settings" href="/admin/settings" />
           </nav>
         </div>
 

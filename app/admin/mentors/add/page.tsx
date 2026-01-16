@@ -1,12 +1,12 @@
 "use client"
-import AddStudentStaff from "@/app/ui/AddStudentStaff";
-export default function AddStaffPage() {
-  const staffSections = [
+import AddStudentMentor from "@/app/ui/AddStudentMentor";
+export default function AddMentorPage() {
+  const mentorSections = [
     {
       sectionTitle: "Employment Profile",
       fields: [
-        { id: "staff-name", label: "Full Name", icon: "person", placeholder: "e.g. Dr. Sarah Smith" },
-        { id: "staff-id", label: "Employee ID", icon: "badge", placeholder: "e.g. EMP-2024-05" },
+        { id: "mentor-name", label: "Full Name", icon: "person", placeholder: "e.g. Dr. Sarah Smith" },
+        { id: "mentor-id", label: "Employee ID", icon: "badge", placeholder: "e.g. EMP-2024-05" },
         { id: "designation", label: "Designation", icon: "work", placeholder: "e.g. Assistant Professor" },
       ]
     },
@@ -21,15 +21,15 @@ export default function AddStaffPage() {
   ];
 
   return (
-    <AddStudentStaff
+    <AddStudentMentor
       title="Add New Mentor"
       subtitle="Register a new faculty or administrative member."
       breadcrumbLabel="Mentor Directory"
-      breadcrumbHref="/staff"
+      breadcrumbHref="/admin/mentors"
       sidebarIcon="badge"
       sidebarTitle="Mentor Onboarding"
       sidebarDesc="Provide the professional and contact details of the new Mentor member."
-      sections={staffSections}
+      sections={mentorSections}
       submitLabel="Register Mentor"
       onSubmit={(e) => console.log("Mentor Data Submitted")}
     />

@@ -98,6 +98,25 @@ export default function SetupAdminAccount() {
               </div>
             </div>
 
+             <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-slate-900">
+                  Confirm Password
+                </label>
+                <div className="mt-2 relative">
+                  <span className="material-symbols-outlined absolute left-3 top-3 text-slate-400 text-[20px]">
+                    lock
+                  </span>
+                  <input
+                    type="text"
+                    className="block w-full rounded-lg border-gray-300 py-3 pl-10 pr-10 focus:ring-2 focus:ring-[#135bec] focus:border-[#135bec]"
+                    placeholder="••••••••"
+                    required
+                  />
+                </div>
+              </div>
+            </div>
+
             <div className="flex items-start">
               <input
                 type="checkbox"

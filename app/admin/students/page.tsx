@@ -38,7 +38,7 @@ export default function StudentListPage() {
         <div className="flex items-center gap-3">
           <button className="flex items-center gap-2 px-4 py-2.5 rounded-lg border border-gray-200 bg-white text-slate-600 hover:bg-slate-50 transition-all text-sm font-medium">
             <span className="material-symbols-outlined text-[20px]">download</span>
-            <span className="hidden sm:inline">Export</span>
+            <span className="hidden sm:inline">Import Bulk</span>
           </button>
           <Link href="/dashboard/students/add" className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-[#135bec] hover:bg-blue-700 text-white transition-all text-sm font-bold shadow-md shadow-[#135bec]/25">
             <span className="material-symbols-outlined text-[20px]">add</span>
@@ -85,9 +85,10 @@ export default function StudentListPage() {
                         {student.mentor}
                       </div>
                     ) : (
-                      <button className="text-xs font-bold text-[#135bec] hover:underline flex items-center gap-1">
-                        <span className="material-symbols-outlined text-sm">person_add</span> Assign
-                      </button>
+                      <div className="flex items-center gap-2 text-sm text-slate-700">
+                        {/* <span className="material-symbols-outlined text-slate-400 text-lg">person</span> */}
+                        Not assinged
+                      </div>
                     )}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
