@@ -1,10 +1,70 @@
 "use client";
 
-import React, { useState } from 'react';
-import Link from 'next/link';
+import React, { useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 
 export default function SetupAdminAccount() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const collegeidUrl = searchParams.get("CollegeID");
   const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [form, setForm] = useState({
+    Name: "",
+    Email: "",
+    Password: "",
+    ConfirmPassword: "",
+    CollegeID: collegeidUrl || "",
+  });
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+
+    if (!form.Name || !form.Email || !form.Password || !form.ConfirmPassword) {
+      setError("All fields are required");
+      setLoading(false);
+      return;
+    }
+
+    if (form.Password !== form.ConfirmPassword) {
+      setError("Passwords do not match");
+      setLoading(false);
+      return;
+    }
+
+    if (!form.CollegeID) {
+      setError("Invalid registration link");
+      setLoading(false);
+      return;
+    }
+
+    const res = await fetch("/api/setup-admin", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        Name: form.Name,
+        Email: form.Email,
+        Password: form.Password,
+        CollegeID: form.CollegeID,
+      }),
+    });
+
+    const data = await res.json();
+    // console.log(data)
+
+    if (!res.ok) {
+      setError(data.error || "Account Creation failed");
+      setLoading(false);
+      return;
+    }
+
+    router.push(`/success`);
+  };
 
   return (
     <div className="bg-[#f6f6f8] text-slate-900 font-sans min-h-screen flex flex-col justify-center py-12 sm:px-6 lg:px-8">
@@ -33,7 +93,7 @@ export default function SetupAdminAccount() {
 
       <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-[540px]">
         <div className="bg-white px-4 py-8 shadow-xl sm:rounded-xl sm:px-10 border border-slate-100">
-          <form className="space-y-6">
+          <form className="space-y-6" onSubmit={handleSubmit}>
             {/* Full Name */}
             <div>
               <label className="block text-sm font-medium text-slate-900">
@@ -47,6 +107,8 @@ export default function SetupAdminAccount() {
                   className="block w-full rounded-lg border-gray-300 py-3 pl-10 focus:ring-2 focus:ring-[#135bec] focus:border-[#135bec]"
                   placeholder="Dr. John Doe"
                   required
+                  value={form.Name}
+                  onChange={(e) => setForm({ ...form, Name: e.target.value })}
                 />
               </div>
             </div>
@@ -65,6 +127,8 @@ export default function SetupAdminAccount() {
                   className="block w-full rounded-lg border-gray-300 py-3 pl-10 focus:ring-2 focus:ring-[#135bec] focus:border-[#135bec]"
                   placeholder="admin@college.edu"
                   required
+                  value={form.Email}
+                  onChange={(e) => setForm({ ...form, Email: e.target.value })}
                 />
               </div>
             </div>
@@ -84,6 +148,10 @@ export default function SetupAdminAccount() {
                     className="block w-full rounded-lg border-gray-300 py-3 pl-10 pr-10 focus:ring-2 focus:ring-[#135bec] focus:border-[#135bec]"
                     placeholder="••••••••"
                     required
+                    value={form.Password}
+                    onChange={(e) =>
+                      setForm({ ...form, Password: e.target.value })
+                    }
                   />
                   <button
                     type="button"
@@ -98,7 +166,7 @@ export default function SetupAdminAccount() {
               </div>
             </div>
 
-             <div className="space-y-4">
+            <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-slate-900">
                   Confirm Password
@@ -112,6 +180,10 @@ export default function SetupAdminAccount() {
                     className="block w-full rounded-lg border-gray-300 py-3 pl-10 pr-10 focus:ring-2 focus:ring-[#135bec] focus:border-[#135bec]"
                     placeholder="••••••••"
                     required
+                    value={form.ConfirmPassword}
+                    onChange={(e) =>
+                      setForm({ ...form, ConfirmPassword: e.target.value })
+                    }
                   />
                 </div>
               </div>
@@ -136,11 +208,19 @@ export default function SetupAdminAccount() {
               </label>
             </div>
 
-            <Link href={"/admin/dashboard"}>
-              <button className="flex w-full justify-center rounded-lg bg-[#135bec] px-3 py-3 text-sm font-bold text-white shadow-lg hover:bg-blue-700 transition-all transform hover:-translate-y-0.5">
-                Create Account
-              </button>
-            </Link>
+            {error && (
+              <p className="text-sm text-red-600 bg-red-50 p-2 rounded font-medium">
+                {error}
+              </p>
+            )}
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="flex w-full justify-center rounded-lg bg-[#135bec] px-3 py-3 text-sm font-bold text-white shadow-lg hover:bg-blue-700 transition-all transform hover:-translate-y-0.5"
+            >
+              {loading ? "Creating..." : "Create Account "}
+            </button>
 
             <div className="text-center pt-4 border-t border-slate-100">
               <Link
