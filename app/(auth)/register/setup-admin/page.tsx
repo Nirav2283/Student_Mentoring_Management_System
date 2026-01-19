@@ -43,7 +43,7 @@ export default function SetupAdminAccount() {
       return;
     }
 
-    const res = await fetch("/api/setup-admin", {
+    const res = await fetch("/api/auth/setup-admin", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

@@ -124,12 +124,6 @@ model users {
   @@index([CollegeID], map: "fk_users_college")
 }
 
-enum users_Role {
-  ADMIN
-  STAFF
-  STUDENT
-}
-
 enum studentmentoring_AttendanceStatus {
   PRESENT
   ABSENT
@@ -145,4 +139,10 @@ enum studentmentoring_LearnerType {
   FAST
   AVERAGE
   ADVANCED
+}
+
+enum users_Role {
+  ADMIN
+  MENTOR
+  STUDENT
 }
