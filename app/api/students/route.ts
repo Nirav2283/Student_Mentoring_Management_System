@@ -56,6 +56,7 @@ export async function POST(req: Request) {
     }
 
     revalidatePath("/admin/students");
+    revalidatePath("/admin/dashboard");
 
     return NextResponse.json({
       success: true,

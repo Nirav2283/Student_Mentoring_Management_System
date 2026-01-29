@@ -35,7 +35,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ success: false, message: "Unauthorized: Invalid session" }, { status: 401 });
     }
 
- 
+
     const CollegeID = body.CollegeID || session.users.CollegeID;
 
     if (!CollegeID) {
@@ -76,7 +76,8 @@ export async function POST(req: Request) {
     //   console.error("Email service failed:", mailError);
     // }
 
-    revalidatePath("/admin/students");
+    revalidatePath("/admin/mentors");
+    revalidatePath("/admin/dashboard");
 
     return NextResponse.json({
       success: true,

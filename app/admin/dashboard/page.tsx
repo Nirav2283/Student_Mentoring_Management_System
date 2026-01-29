@@ -1,3 +1,7 @@
+import { getSessionUser } from '@/app/lib/auth';
+import { prisma } from '@/app/lib/prisma';
+import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
 import React from 'react';
 
 const StatCard = ({ icon, label, value, trend, subtext, colorClass }: any) => (
@@ -18,13 +22,33 @@ const StatCard = ({ icon, label, value, trend, subtext, colorClass }: any) => (
   </div>
 );
 
-export default function DashboardPage() {
+
+export default async function DashboardPage() {
+  const user = await getSessionUser()
+
+  if (!user) {
+    redirect('/login')
+  }
+
+  const CollegeID = user.CollegeID
+
+  const studentCount = await prisma.student.count({
+    where: {
+      CollegeID
+    }
+  })
+
+  const mentorCount = await prisma.mentor.count({
+    where: {
+      CollegeID
+    }
+  })
   return (
     <div className="space-y-8 animate-fade-in">
       {/* 4-Column Stats Grid */}
       <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-        <StatCard icon="school" label="Total Students" value="2,450" trend="+12%" subtext="active" colorClass="bg-blue-50 text-[#135bec]" />
-        <StatCard icon="supervisor_account" label="Total Mentors" value="128" trend="+5%" subtext="verified" colorClass="bg-purple-50 text-purple-600" />
+        <StatCard icon="school" label="Total Students" value={studentCount} trend="+12%" subtext="active" colorClass="bg-blue-50 text-[#135bec]" />
+        <StatCard icon="supervisor_account" label="Total Mentors" value={mentorCount} trend="+5%" subtext="verified" colorClass="bg-purple-50 text-purple-600" />
         <StatCard icon="forum" label="Total Sessions" value="8,932" trend="+24%" subtext="all time" colorClass="bg-indigo-50 text-indigo-600" />
         <StatCard icon="schedule" label="Next 24h" value="42" trend="Scheduled" subtext="sessions" colorClass="bg-orange-50 text-orange-600" />
       </section>
@@ -41,12 +65,12 @@ export default function DashboardPage() {
             {[65, 40, 85, 50, 70, 30].map((height, i) => (
               <div key={i} className="flex-1 flex flex-col items-center gap-2">
                 <div className="w-full bg-slate-50 rounded-t-lg relative h-full overflow-hidden">
-                  <div 
-                    className="absolute bottom-0 w-full bg-[#135bec]/80 rounded-t-lg transition-all hover:bg-[#135bec]" 
+                  <div
+                    className="absolute bottom-0 w-full bg-[#135bec]/80 rounded-t-lg transition-all hover:bg-[#135bec]"
                     style={{ height: `${height}%` }}
                   />
                 </div>
-                <span className="text-[10px] font-bold text-slate-400">D{i+1}</span>
+                <span className="text-[10px] font-bold text-slate-400">D{i + 1}</span>
               </div>
             ))}
           </div>
@@ -65,7 +89,7 @@ export default function DashboardPage() {
                 <div className="bg-[#135bec] h-2 rounded-full" style={{ width: '87%' }}></div>
               </div>
             </div>
-            
+
             <div className="grid grid-cols-2 gap-4">
               <div className="p-4 bg-gray-50 rounded-xl">
                 <p className="text-xs text-slate-500 uppercase font-bold">Avg Session</p>

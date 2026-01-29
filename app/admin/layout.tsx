@@ -19,6 +19,8 @@ const NavItem = ({
   const pathname = usePathname();
   const isActive = pathname === href;
 
+
+
   return (
     <Link
       href={href}
@@ -39,6 +41,9 @@ const NavItem = ({
     </Link>
   );
 };
+
+
+
 
 export default function DashboardLayout({
   children,
