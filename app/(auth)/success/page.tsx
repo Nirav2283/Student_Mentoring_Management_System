@@ -89,18 +89,18 @@ const AccountSuccess = () => {
                 Your account has been created successfully!
               </h1>
               <p className="text-slate-500 text-lg font-normal leading-relaxed px-4">
-                You can now log in to your account to start managing your college and mentorship programs.
+                You will recieve a mail , please verify your email and after go to login
               </p>
             </motion.div>
 
             {/* Primary CTA */}
             <motion.div variants={itemVariants} className="flex flex-col gap-3 px-4">
-              <Link 
+              {/* <Link 
                 href="/login" 
                 className="w-full flex items-center justify-center rounded-lg h-14 px-8 bg-[#2656f2] text-white text-lg font-bold hover:bg-blue-700 transition-all shadow-lg shadow-blue-200 active:scale-[0.98]"
               >
                 Go to Login
-              </Link>
+              </Link> */}
               
               <p className="text-sm text-slate-400 mt-4">
                 Need help? <a className="text-[#2656f2] hover:underline" href="#">Contact Support</a>

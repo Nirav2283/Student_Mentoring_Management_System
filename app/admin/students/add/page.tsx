@@ -1,7 +1,13 @@
 "use client"
 import AddStudentMentor from "@/app/ui/AddStudentMentor";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 export default function AddStudentPage() {
+  const router = useRouter();
+  const [errors, setErrors] = useState<string[]>([]);
+  const [loading, setLoading] = useState(false);
+
   const studentSections = [
     {
       sectionTitle: "Academic Profile",
@@ -22,6 +28,56 @@ export default function AddStudentPage() {
     },
   ];
 
+  const handleSubmit = async (formData: any) => {
+    setLoading(true);
+    setErrors([]);
+    const newErrors: string[] = [];
+    studentSections.forEach(section => {
+      section.fields.forEach(field => {
+        const value = formData[field.id];
+        if (field.id !== "notes" && (!value || String(value).trim() === "")) {
+          newErrors.push(field.id);
+        }
+      });
+    });
+
+    if (newErrors.length > 0) {
+      setErrors(newErrors);
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const res = await fetch("/api/students", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          StudentName: formData["student-name"],
+          EnrollmentNo: formData["enrollment"],
+          Department: formData["department"],
+          CurrentSem: parseInt(formData["year"]),
+          EmailAddress: formData["email"],
+          MobileNo: formData["phone"],
+          Description: formData["notes"],
+          CollegeID: 1,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        router.refresh();
+        router.push('/admin/students');
+      } else {
+        console.error(data.message);
+        setLoading(false);
+      }
+    } catch (err) {
+      console.error(err);
+      setLoading(false);
+    }
+  };
+
   return (
     <AddStudentMentor
       title="Add New Student"
@@ -33,7 +89,9 @@ export default function AddStudentPage() {
       sidebarDesc="Add a new student to your database to begin their journey."
       sections={studentSections}
       submitLabel="Confirm Registration"
-      onSubmit={(e) => console.log("Student Data Submitted")}
+      onSubmit={handleSubmit}
+      errors={errors}
+      isLoading={loading} 
     />
   );
 }

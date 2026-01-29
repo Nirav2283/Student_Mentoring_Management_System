@@ -17,28 +17,10 @@ model college {
   UpdatedAt     DateTime?       @default(now()) @db.DateTime(0)
   Address       String?         @db.Text
   Phone         String?         @db.VarChar(20)
-  staff         staff[]
+  mentor        mentor[]
   student       student[]
   studentmentor studentmentor[]
   users         users[]
-}
-
-model staff {
-  StaffID       Int             @id @default(autoincrement())
-  UserID        Int
-  CollegeID     Int
-  StaffName     String          @db.VarChar(150)
-  MobileNo      String?         @db.VarChar(15)
-  EmailAddress  String?         @db.VarChar(50)
-  Description   String?         @db.Text
-  CreatedAt     DateTime?       @default(now()) @db.DateTime(0)
-  UpdatedAt     DateTime?       @default(now()) @db.DateTime(0)
-  college       college         @relation(fields: [CollegeID], references: [CollegeID], map: "fk_staff_college")
-  users         users           @relation(fields: [UserID], references: [UserID], onDelete: Cascade, map: "fk_staff_user")
-  studentmentor studentmentor[]
-
-  @@index([CollegeID], map: "fk_staff_college")
-  @@index([UserID], map: "fk_staff_user")
 }
 
 model student {
@@ -52,6 +34,9 @@ model student {
   Description   String?         @db.Text
   CreatedAt     DateTime?       @default(now()) @db.DateTime(0)
   UpdatedAt     DateTime?       @default(now()) @db.DateTime(0)
+  Status        Boolean?        @default(true)
+  CurrentSem    Int?
+  Department    String?         @db.VarChar(50)
   college       college         @relation(fields: [CollegeID], references: [CollegeID], map: "fk_student_college")
   users         users           @relation(fields: [UserID], references: [UserID], onDelete: Cascade, map: "fk_student_user")
   studentmentor studentmentor[]
@@ -63,7 +48,7 @@ model student {
 model studentmentor {
   StudentMentorID  Int                @id @default(autoincrement())
   StudentID        Int
-  StaffID          Int
+  MentorID         Int
   CollegeID        Int
   FromDate         DateTime           @db.Date
   ToDate           DateTime?          @db.Date
@@ -71,13 +56,13 @@ model studentmentor {
   CreatedAt        DateTime?          @default(now()) @db.DateTime(0)
   UpdatedAt        DateTime?          @default(now()) @db.DateTime(0)
   college          college            @relation(fields: [CollegeID], references: [CollegeID], map: "fk_sm_college")
-  staff            staff              @relation(fields: [StaffID], references: [StaffID], onDelete: Cascade, map: "fk_sm_staff")
+  mentor           mentor             @relation(fields: [MentorID], references: [MentorID], onDelete: Cascade, map: "fk_sm_mentor")
   student          student            @relation(fields: [StudentID], references: [StudentID], onDelete: Cascade, map: "fk_sm_student")
   studentmentoring studentmentoring[]
 
   @@index([CollegeID], map: "fk_sm_college")
-  @@index([StaffID], map: "fk_sm_staff")
   @@index([StudentID], map: "fk_sm_student")
+  @@index([MentorID], map: "fk_sm_mentor")
 }
 
 model studentmentoring {
@@ -108,20 +93,56 @@ model studentmentoring {
 }
 
 model users {
-  UserID       Int        @id @default(autoincrement())
-  CollegeID    Int
-  Name         String     @db.VarChar(50)
-  Email        String     @unique(map: "Email") @db.VarChar(100)
-  PasswordHash String     @db.VarChar(255)
-  Role         users_Role
-  IsActive     Boolean?   @default(true)
-  CreatedAt    DateTime?  @default(now()) @db.DateTime(0)
-  UpdatedAt    DateTime?  @default(now()) @db.DateTime(0)
-  staff        staff[]
-  student      student[]
-  college      college    @relation(fields: [CollegeID], references: [CollegeID], onDelete: Cascade, map: "fk_users_college")
+  UserID            Int           @id @default(autoincrement())
+  CollegeID         Int
+  Name              String        @db.VarChar(50)
+  Email             String        @unique(map: "Email") @db.VarChar(100)
+  PasswordHash      String        @db.VarChar(255)
+  Role              users_Role
+  IsActive          Boolean?      @default(true)
+  CreatedAt         DateTime?     @default(now()) @db.DateTime(0)
+  UpdatedAt         DateTime?     @default(now()) @db.DateTime(0)
+  EmailVerified     Boolean?      @default(false)
+  EmailVerifyToken  String?       @db.VarChar(255)
+  EmailVerifyExpiry DateTime?     @db.DateTime(0)
+  mentor            mentor[]
+  student           student[]
+  college           college       @relation(fields: [CollegeID], references: [CollegeID], onDelete: Cascade, map: "fk_users_college")
+  usersession       usersession[]
 
   @@index([CollegeID], map: "fk_users_college")
+}
+
+model usersession {
+  id        Int       @id @default(autoincrement())
+  token     String    @unique(map: "token") @db.VarChar(255)
+  userId    Int
+  expiresAt DateTime  @db.DateTime(0)
+  createdAt DateTime? @default(now()) @db.DateTime(0)
+  users     users     @relation(fields: [userId], references: [UserID], onDelete: Cascade, onUpdate: NoAction, map: "usersession_ibfk_1")
+
+  @@index([userId], map: "userId")
+}
+
+model mentor {
+  MentorID      Int             @id @default(autoincrement())
+  UserID        Int
+  CollegeID     Int
+  MentorName    String          @db.VarChar(150)
+  MobileNo      String?         @db.VarChar(15)
+  EmailAddress  String?         @db.VarChar(50)
+  Department    String?         @db.VarChar(50)
+  Education     String?         @db.VarChar(50)
+  Feedback      Int?
+  Description   String?         @db.Text
+  CreatedAt     DateTime?       @default(now()) @db.DateTime(0)
+  UpdatedAt     DateTime?       @default(now()) @db.DateTime(0)
+  college       college         @relation(fields: [CollegeID], references: [CollegeID], map: "fk_mentor_college")
+  users         users           @relation(fields: [UserID], references: [UserID], onDelete: Cascade, map: "fk_mentor_user")
+  studentmentor studentmentor[]
+
+  @@index([CollegeID], map: "fk_mentor_college")
+  @@index([UserID], map: "fk_mentor_user")
 }
 
 enum studentmentoring_AttendanceStatus {
