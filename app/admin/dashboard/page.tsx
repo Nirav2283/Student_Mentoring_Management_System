@@ -50,7 +50,15 @@ export default async function DashboardPage() {
       CollegeID,
     },
   });
-  // console.log(mentors)
+
+  const sessions = await prisma.studentmentoring.count({
+    where:{
+      studentmentor:{
+        CollegeID
+      }
+    }
+  })
+  // console.log("Sessions count",sessions)
   return (
     <div className="space-y-8 animate-fade-in">
       {/* 4-Column Stats Grid */}
@@ -74,7 +82,7 @@ export default async function DashboardPage() {
         <StatCard
           icon="forum"
           label="Total Sessions"
-          value="8,932"
+          value={sessions}
           trend="+24%"
           subtext="all time"
           colorClass="bg-indigo-50 text-indigo-600"

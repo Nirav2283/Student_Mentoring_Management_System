@@ -46,6 +46,8 @@ export default async function StudentListPage() {
 
   const CollegeID = session.users.CollegeID;
 
+  console.log("::::CollegeID:::::",CollegeID)
+
   const students = await prisma.student.findMany({
     where: {
       CollegeID,

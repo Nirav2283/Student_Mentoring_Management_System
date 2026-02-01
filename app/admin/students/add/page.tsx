@@ -59,7 +59,6 @@ export default function AddStudentPage() {
           EmailAddress: formData["email"],
           MobileNo: formData["phone"],
           Description: formData["notes"],
-          CollegeID: 1,
         }),
       });
 
