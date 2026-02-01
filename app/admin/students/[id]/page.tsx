@@ -1,5 +1,4 @@
 import { prisma } from "@/app/lib/prisma";
-import React from "react";
 import { Brain, CheckCircle, UserCheck, X } from "lucide-react";
 
 export default async function StudentProfile({
@@ -107,14 +106,18 @@ export default async function StudentProfile({
       total > 0 ? Math.round((presentCount / total) * 100) : 0;
   }
 
-  const totalsession = await prisma.studentmentoring.count({
-    where: {
-      StudentMentorID: studentMentorId,
-    },
-  });
+  let totalsession = 0;
+
+  if (studentMentorId) {
+    totalsession = await prisma.studentmentoring.count({
+      where: {
+        StudentMentorID: studentMentorId,
+      },
+    });
+  }
 
   return (
-    <div className="bg-[#f8fafc] min-h-screen p-4 md:p-8 text-slate-900">
+    <div className="min-h-screen p-4 md:p-8 text-slate-900">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Profile Section */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -132,10 +135,8 @@ export default async function StudentProfile({
                   </h2>
                   <div className="flex items-center gap-2 mt-1">
                     <span className="px-2 py-0.5 bg-indigo-50 text-indigo-600 text-xs font-semibold rounded uppercase tracking-wider">
-                      {
-                        student?.studentmentor?.[0].studentmentoring?.[0]
-                          .LearnerType
-                      }
+                      {student?.studentmentor?.[0]?.studentmentoring?.[0]
+                        ?.LearnerType || "N/A"}
                     </span>
                     <span className="px-2 py-0.5 bg-slate-100 text-slate-600 text-xs font-semibold rounded uppercase tracking-wider">
                       Semester : {student?.CurrentSem}
@@ -199,9 +200,8 @@ export default async function StudentProfile({
 
                 <div className="flex items-center gap-1.5">
                   <span
-                    className={`w-2 h-2 rounded-full ${
-                      student?.Status ? "bg-green-500" : "bg-red-500"
-                    }`}
+                    className={`w-2 h-2 rounded-full ${student?.Status ? "bg-green-500" : "bg-red-500"
+                      }`}
                   ></span>
 
                   <span className="font-medium text-slate-900">
@@ -251,10 +251,8 @@ export default async function StudentProfile({
                 </p>
                 <div className="flex flex-wrap gap-2">
                   <span className="px-3 py-1 bg-slate-100 text-slate-500 text-xs font-bold rounded-full">
-                    {
-                      student?.studentmentor?.[0].studentmentoring?.[0]
-                        .LearnerType
-                    }
+                    {student?.studentmentor?.[0]?.studentmentoring?.[0]
+                      ?.LearnerType || "Not Evaluated"}
                   </span>
                 </div>
               </div>
@@ -264,10 +262,8 @@ export default async function StudentProfile({
                 </p>
                 <p className="text-xs italic text-slate-600 leading-relaxed">
                   "
-                  {
-                    student?.studentmentor?.[0].studentmentoring?.[0]
-                      .StaffOpinion
-                  }
+                  {student?.studentmentor?.[0]?.studentmentoring?.[0]
+                    ?.StaffOpinion || "No opinion recorded"}
                   "
                 </p>
                 <div className="mt-4 flex items-center gap-2">
@@ -383,11 +379,10 @@ export default async function StudentProfile({
                     {/* Parent Status */}
                     <td className="px-6 py-4">
                       <div
-                        className={`flex items-center gap-1.5 font-bold text-xs ${
-                          session.IsParentPresent
+                        className={`flex items-center gap-1.5 font-bold text-xs ${session.IsParentPresent
                             ? "text-green-600"
                             : "text-slate-300"
-                        }`}
+                          }`}
                       >
                         <UserCheck size={14} />
                         {session.IsParentPresent ? "YES" : "NO"}
@@ -397,11 +392,10 @@ export default async function StudentProfile({
                     {/* Attendance */}
                     <td className="px-6 py-4">
                       <span
-                        className={`px-2.5 py-1 rounded text-[10px] font-black uppercase tracking-widest ${
-                          session.AttendanceStatus === "PRESENT"
+                        className={`px-2.5 py-1 rounded text-[10px] font-black uppercase tracking-widest ${session.AttendanceStatus === "PRESENT"
                             ? "bg-green-100 text-green-700"
                             : "bg-red-100 text-red-700"
-                        }`}
+                          }`}
                       >
                         {session.AttendanceStatus}
                       </span>
