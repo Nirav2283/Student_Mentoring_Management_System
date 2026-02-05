@@ -5,7 +5,6 @@ import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
 
-
 async function deleteMentor(formData: FormData) {
   "use server";
 
@@ -13,12 +12,23 @@ async function deleteMentor(formData: FormData) {
 
   if (!id) return;
 
+  const mentor = await prisma.mentor.findUnique({
+    where: { MentorID: id },
+    select: { UserID: true },
+  });
+
+  if (!mentor) return;
+
+
   await prisma.mentor.delete({
     where: { MentorID: id },
   });
 
+  await prisma.users.delete({
+    where: { UserID: mentor.UserID },
+  });
+
   revalidatePath("/admin/mentors");
-  
 }
 
 export default async function MentorListPage() {
@@ -217,7 +227,7 @@ export default async function MentorListPage() {
         </div>
 
         {/* Pagination */}
-        <div className="px-6 py-4 bg-white border-t border-gray-100 flex items-center justify-between">
+        {/* <div className="px-6 py-4 bg-white border-t border-gray-100 flex items-center justify-between">
           <p className="text-sm text-slate-500">
             Showing <span className="font-bold text-slate-900">1</span> to{" "}
             <span className="font-bold text-slate-900">{mentors.length}</span>{" "}
@@ -244,7 +254,7 @@ export default async function MentorListPage() {
               </span>
             </button>
           </div>
-        </div>
+        </div> */}
       </div>
     </div>
   );

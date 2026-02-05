@@ -6,16 +6,15 @@ import crypto from "crypto";
 
 export async function POST(req: Request) {
   try {
-    const { Email, Password, Role } = await req.json();
+    const { Email, Password } = await req.json();
 
-    if (!Email || !Password || !Role) {
+    if (!Email || !Password) {
       return NextResponse.json({ error: "Missing fields" }, { status: 400 });
     }
 
     const user = await prisma.users.findFirst({
       where: {
         Email,
-        Role: Role.toUpperCase(),
       },
     });
 
@@ -56,7 +55,7 @@ export async function POST(req: Request) {
     }
 
     return NextResponse.json({ success: true, user });
-  } catch (err:any) {
+  } catch (err: any) {
     return NextResponse.json(
       { error: err.message },
       { status: 500 },

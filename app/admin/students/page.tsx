@@ -72,9 +72,7 @@ export default async function StudentListPage() {
     },
   });
 
-  const totalStudents = await prisma.student.count({
-    where: { CollegeID },
-  });
+ 
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -241,7 +239,7 @@ export default async function StudentListPage() {
         </div>
 
         {/* Pagination */}
-        <div className="px-6 py-4 bg-white border-t border-gray-100 flex items-center justify-between">
+        {/* <div className="px-6 py-4 bg-white border-t border-gray-100 flex items-center justify-between">
           <p className="text-sm text-slate-500">
             Showing <span className="font-bold text-slate-900">1</span> to{" "}
             <span className="font-bold text-slate-900">5</span> of{" "}
@@ -266,7 +264,7 @@ export default async function StudentListPage() {
               </span>
             </button>
           </div>
-        </div>
+        </div> */}
       </div>
     </div>
   );

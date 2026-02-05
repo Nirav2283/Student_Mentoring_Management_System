@@ -36,7 +36,7 @@ export async function GET(req: Request) {
         { FromDate: { lte: now } },
         {
           OR: [
-            { ToDate: null }, 
+            { ToDate: null },
             { ToDate: { gt: now } },
           ],
         },
@@ -69,5 +69,46 @@ export async function GET(req: Request) {
       college: true,
     },
   });
-  return NextResponse.json({ activemappings, unassignedStudents });
+
+  const mentors = await prisma.mentor.findMany({
+    select: { MentorID: true, MentorName: true, Department: true }
+  })
+
+  return NextResponse.json({ unassignedStudents, activemappings, mentors });
+}
+
+export async function POST(req: Request) {
+  try {
+    const { collegeId, mentorId, studentId, fromDate, toDate, description } = await req.json();
+
+    const parsedFromDate = new Date(fromDate);
+    const parsedToDate = new Date(toDate);
+
+    if (isNaN(parsedFromDate.getTime()) || isNaN(parsedToDate.getTime())) {
+      return NextResponse.json(
+        { success: false, message: "Invalid date format" },
+        { status: 400 }
+      );
+    }
+
+    const newAssignment = await prisma.studentmentor.create({
+      data: {
+        CollegeID: Number(collegeId),
+        MentorID: Number(mentorId),
+        StudentID: Number(studentId),
+        Description: description,
+        FromDate: parsedFromDate,
+        ToDate: parsedToDate,
+      },
+    });
+
+    return NextResponse.json({ newAssignment });
+  } catch (err) {
+    console.log(err);
+    return NextResponse.json({ error: "Assignment failed" }, { status: 500 });
+  }
+}
+
+export async function DELETE(){
+  
 }

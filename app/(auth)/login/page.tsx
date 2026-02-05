@@ -1,123 +1,205 @@
-import React from 'react';
-import Link from 'next/link';
+"use client";
 
-interface UserRoleCardProps {
-  icon: string;
-  title: string;
-  description: string;
-  buttonText: string;
-  href: string;
-}
+import React, { useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 
-const UserRoleCard = ({ icon, title, description, buttonText, href }: UserRoleCardProps) => (
-  <Link
-    href={href}
-    className="group relative flex flex-col items-center text-center p-8 md:p-10 rounded-2xl bg-white border border-gray-200 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden cursor-pointer"
-  >
-    {/* Animated top border line */}
-    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[#135bec] to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+export default function LoginPage() {
+  const [showPassword, setShowPassword] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
-    <div className="size-24 rounded-2xl bg-blue-50 text-[#135bec] flex items-center justify-center mb-6 group-hover:bg-[#135bec] group-hover:text-white transition-colors duration-300">
-      <span className="material-symbols-outlined text-5xl">{icon}</span>
-    </div>
+  const handleLogin = async () => {
+    try {
+      setLoading(true);
+      setError("");
+      // Call the API without 'Role'
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          Email: email,
+          Password: password,
+        }),
+      });
 
-    <h2 className="text-2xl font-bold text-[#111318] mb-3">{title}</h2>
+      const data = await res.json();
 
-    <p className="text-gray-500 mb-8 leading-relaxed text-sm md:text-base">
-      {description}
-    </p>
+      if (!res.ok) {
+        setError(data.error || "Login failed");
+        return;
+      }
 
-    <div className="mt-auto w-full">
-      <div className="w-full py-3 px-4 bg-transparent border border-gray-300 rounded-lg text-gray-700 font-semibold group-hover:bg-[#135bec] group-hover:border-[#135bec] group-hover:text-white transition-all duration-300 flex items-center justify-center gap-2">
-        <span>{buttonText}</span>
-        <span className="material-symbols-outlined text-lg">arrow_forward</span>
-      </div>
-    </div>
-  </Link>
-);
+      const userRole = data.user.Role; // The API returns the user object with Role
 
-export default function LoginSelection() {
+      if (userRole === "ADMIN") {
+        router.push("/admin/dashboard");
+      } else if (userRole === "STUDENT") {
+        router.push("/student/dashboard");
+      } else if (userRole === "MENTOR") {
+        router.push("/mentor/dashboard");
+      } else {
+        setError("Unknown role. Please contact support.");
+      }
+    } catch (err) {
+      setError("Something went wrong");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <div className="bg-[#f6f6f8] text-[#111318] min-h-screen flex flex-col font-sans">
+    <div className="font-sans bg-[#f6f6f8] text-[#111318] antialiased">
       {/* Material Symbols */}
-      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=block" />
+      <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=block"
+      />
 
-      {/* Header */}
-      <header className="w-full border-b border-gray-200 bg-white/80 backdrop-blur-md sticky top-0 z-50">
-        <div className="max-w-[1280px] mx-auto px-4 sm:px-10 h-16 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-3">
-            <div className="size-8 text-[#135bec] flex items-center justify-center rounded-lg bg-[#135bec]/10">
-              <span className="material-symbols-outlined text-[24px]">school</span>
+      <div className="flex min-h-screen w-full flex-row overflow-hidden">
+        {/* Left Side: Visual/Branding (Hidden on mobile) */}
+        <div className="hidden lg:flex lg:w-1/2 relative bg-[#101622] items-center justify-center overflow-hidden">
+          <div
+            className="absolute inset-0 z-0 bg-cover bg-center"
+            style={{
+              backgroundImage:
+                'url("https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80")',
+            }}
+          ></div>
+          <div className="absolute inset-0 z-10 bg-[#135bec]/80 mix-blend-multiply"></div>
+          <div className="absolute inset-0 z-10 bg-gradient-to-t from-black/60 to-transparent"></div>
+
+          <div className="relative z-20 flex flex-col items-start justify-end h-full w-full p-16 pb-24 max-w-2xl">
+            <div className="mb-6 rounded-full bg-white/10 backdrop-blur-sm px-4 py-1.5 border border-white/20">
+              <span className="text-xs font-bold uppercase tracking-wider text-white">
+                Mentora Portal
+              </span>
             </div>
-            <h2 className="text-[#111318] text-lg font-bold leading-tight tracking-tight">Mentora</h2>
-          </Link>
-          <Link href="/" className="text-[#135bec] text-sm font-bold hover:bg-gray-100 px-4 py-2 rounded-lg transition-colors">
-            Back to Home
-          </Link>
-        </div>
-      </header>
-
-      {/* Main Content */}
-      <main className="flex-grow flex flex-col items-center justify-center p-4 md:p-8">
-        <div className="w-full max-w-[1280px] flex flex-col gap-8 md:gap-12 animate-fade-in-up">
-
-          <div className="text-center flex flex-col gap-3">
-            <h1 className="text-[#111318] text-3xl md:text-5xl font-black tracking-tight">
-              Select User Type
+            <h1 className="text-4xl font-black text-white leading-tight tracking-tight mb-4">
+              Empowering the next generation of leaders.
             </h1>
-            <p className="text-gray-500 text-lg max-w-[600px] mx-auto">
-              Choose your role to access the Mentora portal securely.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 w-full">
-            <UserRoleCard
-              icon="supervisor_account"
-              title="Mentor Login"
-              description="Access administrative tools, manage student rosters, and track mentorship programs."
-              buttonText="Continue as Mentor"
-              href="/login/mentor"
-            />
-            <UserRoleCard
-              icon="school"
-              title="Student Login"
-              description="Connect with mentors, track your learning journey, and access exclusive resources."
-              buttonText="Continue as Student"
-              href="/login/student"
-            />
-            <UserRoleCard
-              icon="admin_panel_settings"
-              title="Admin Login"
-              description="Manage system settings, user permissions, and view platform analytics."
-              buttonText="Continue as Admin"
-              href="/login/admin"
-            />
-          </div>
-
-          <div className="text-center">
-            <p className="text-gray-500 text-sm">
-              Don&apos;t have an account?{' '}
-              <Link href="#" className="text-[#135bec] hover:underline font-medium">
-                Contact Administrator
-              </Link>
+            <p className="text-lg text-white/80 font-medium leading-relaxed max-w-lg">
+              Manage mentorship programs, track student progress, and foster
+              academic growth from one central hub.
             </p>
           </div>
         </div>
-      </main>
 
-      {/* Footer */}
-      <footer className="w-full py-8 border-t border-gray-200 bg-white">
-        <div className="max-w-[960px] mx-auto px-5 flex flex-col md:flex-row items-center justify-between gap-6">
-          <p className="text-[#616f89] text-sm font-normal">
-            © {new Date().getFullYear()} Mentora Inc. All rights reserved.
-          </p>
-          <div className="flex items-center gap-8">
-            <Link href="#" className="text-[#616f89] hover:text-[#135bec] text-sm font-medium transition-colors">About</Link>
-            <Link href="#" className="text-[#616f89] hover:text-[#135bec] text-sm font-medium transition-colors">Help Center</Link>
-            <Link href="#" className="text-[#616f89] hover:text-[#135bec] text-sm font-medium transition-colors">Privacy</Link>
+        {/* Right Side: Login Form */}
+        <div className="flex w-full lg:w-1/2 flex-col justify-center items-center bg-white px-6 py-12 lg:px-20 relative">
+          <div className="w-full max-w-[440px] flex flex-col gap-8">
+            {/* Logo */}
+            <Link href="/" className="flex items-center gap-3">
+              <div className="size-10 text-[#135bec]">
+                <span className="material-symbols-outlined text-4xl">
+                  school
+                </span>
+              </div>
+              <span className="text-[#111318] text-xl font-bold tracking-tight">
+                Mentora
+              </span>
+            </Link>
+
+            {/* Heading */}
+            <div className="flex flex-col gap-2">
+              <h2 className="text-[#111318] text-3xl font-black tracking-tight capitalize">
+                Welcome Back
+              </h2>
+              <p className="text-[#616f89] text-base font-normal">
+                Please enter your details to sign in.
+              </p>
+            </div>
+
+            {/* Form */}
+            <form
+              className="flex flex-col gap-5 w-full"
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleLogin();
+              }}
+            >
+              <label className="flex flex-col w-full">
+                <p className="text-[#111318] text-sm font-medium pb-2">
+                  Email Address
+                </p>
+                <input
+                  className="form-input w-full rounded-lg border-[#dbdfe6] focus:ring-2 focus:ring-[#135bec]/20 focus:border-[#135bec] h-12 p-[15px] transition-colors"
+                  placeholder="name@college.edu"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+              </label>
+
+              <label className="flex flex-col w-full">
+                <p className="text-[#111318] text-sm font-medium pb-2">
+                  Password
+                </p>
+                <div className="relative flex w-full items-stretch">
+                  <input
+                    className="form-input w-full rounded-lg border-[#dbdfe6] focus:ring-2 focus:ring-[#135bec]/20 focus:border-[#135bec] h-12 p-[15px] pr-12 transition-colors"
+                    placeholder="Enter your password"
+                    type={showPassword ? "text" : "password"}
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-0 top-0 h-full px-3 flex items-center justify-center text-[#616f89] hover:text-[#111318]"
+                  >
+                    <span className="material-symbols-outlined text-[20px]">
+                      {showPassword ? "visibility_off" : "visibility"}
+                    </span>
+                  </button>
+                </div>
+              </label>
+
+              <div className="flex justify-end">
+                <Link
+                  href={`/forgot-password`}
+                  className="text-sm font-medium text-[#135bec] hover:text-blue-700"
+                >
+                  Forgot Password?
+                </Link>
+              </div>
+
+              {error && (
+                <p className="text-red-600 text-sm font-medium">{error}</p>
+              )}
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="flex w-full items-center justify-center rounded-lg bg-[#135bec] h-12 px-6 text-white text-base font-bold hover:bg-blue-700 transition-all shadow-md mt-2"
+              >
+                {loading ? "Signing in..." : "Sign In"}
+              </button>
+            </form>
+
+            {/* Footer */}
+            <div className="mt-8 pt-6 border-t border-[#f0f2f4] flex flex-col gap-4 items-center text-center">
+              <p className="text-sm text-[#616f89]">
+                Having trouble?{" "}
+                <Link
+                  href="#"
+                  className="text-[#111318] font-medium hover:underline"
+                >
+                  Contact Support
+                </Link>
+              </p>
+              <p className="text-xs text-[#9ca3af]/60">
+                © 2026 Mentora System. All rights reserved.
+              </p>
+            </div>
           </div>
         </div>
-      </footer>
+      </div>
     </div>
   );
 }

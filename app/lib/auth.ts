@@ -9,7 +9,11 @@ export async function getSessionUser() {
   const session = await prisma.usersession.findFirst({
     where: { token },
     include: {
-      users: true,
+      users: {
+        include: {
+          college: true,
+        },
+      },
     },
   });
 
