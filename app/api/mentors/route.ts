@@ -5,6 +5,7 @@ import { NextResponse } from "next/server";
 import { users_Role } from "@/app/generated/prisma/client";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
+import { sendMentorEmail } from "@/app/lib/mentormail";
 
 export async function POST(req: Request) {
   try {
@@ -23,28 +24,36 @@ export async function POST(req: Request) {
     const token = cookieStore.get("session")?.value;
 
     if (!token) {
-      return NextResponse.json({ success: false, message: "Unauthorized: No session token" }, { status: 401 });
+      return NextResponse.json(
+        { success: false, message: "Unauthorized: No session token" },
+        { status: 401 },
+      );
     }
 
     const session = await prisma.usersession.findUnique({
       where: { token },
-      include: { users: true }
+      include: { users: true },
     });
 
     if (!session || !session.users) {
-      return NextResponse.json({ success: false, message: "Unauthorized: Invalid session" }, { status: 401 });
+      return NextResponse.json(
+        { success: false, message: "Unauthorized: Invalid session" },
+        { status: 401 },
+      );
     }
-
 
     const CollegeID = body.CollegeID || session.users.CollegeID;
 
     if (!CollegeID) {
-      return NextResponse.json({ success: false, message: "CollegeID is missing" }, { status: 400 });
+      return NextResponse.json(
+        { success: false, message: "CollegeID is missing" },
+        { status: 400 },
+      );
     }
 
     const password = generatePassword();
     const hashedpassword = await bcrypt.hash(password, 10);
-    console.log(password)
+    console.log(password);
 
     const user = await prisma.users.create({
       data: {
@@ -76,6 +85,12 @@ export async function POST(req: Request) {
     //   console.error("Email service failed:", mailError);
     // }
 
+    try {
+      await sendMentorEmail(MentorName, password, EmailAddress);
+    } catch (mailError) {
+      console.error("Email service failed:", mailError);
+    }
+
     revalidatePath("/admin/mentors");
     revalidatePath("/admin/dashboard");
 
@@ -87,7 +102,10 @@ export async function POST(req: Request) {
   } catch (err: any) {
     console.error(err);
     return NextResponse.json(
-      { success: false, message: "Failed to add mentor: " + (err.message || "") },
+      {
+        success: false,
+        message: "Failed to add mentor: " + (err.message || ""),
+      },
       { status: 500 },
     );
   }

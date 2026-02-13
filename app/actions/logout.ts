@@ -14,5 +14,5 @@ export async function Logout() {
 
     (await cookiestore).delete("session")
 
-    redirect('/login/admin')
+    redirect('/login')
 }

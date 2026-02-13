@@ -14,10 +14,11 @@ const MentorshipManager = () => {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const response = await fetch("/api/mentorship");
+      const response = await fetch("/api/mentorship", { cache: "no-store" });
       const data = await response.json();
       if (data.activemappings) setActiveMappings(data.activemappings);
-      if (data.unassignedStudents) setUnassignedStudents(data.unassignedStudents);
+      if (data.unassignedStudents)
+        setUnassignedStudents(data.unassignedStudents);
       if (data.mentors) setMentors(data.mentors);
     } catch (error) {
       console.error("Failed to fetch mentorship data", error);
@@ -30,7 +31,11 @@ const MentorshipManager = () => {
     fetchData();
   }, []);
 
-  const handleInputChange = (studentId: number, field: string, value: string) => {
+  const handleInputChange = (
+    studentId: number,
+    field: string,
+    value: string,
+  ) => {
     setFormData((prev) => ({
       ...prev,
       [studentId]: { ...prev[studentId], [field]: value },
@@ -40,8 +45,8 @@ const MentorshipManager = () => {
   const handleAssign = async (studentId: number, collegeId: number) => {
     const data = formData[studentId];
 
-    if (!data?.mentorId || !data?.fromDate || !data?.toDate) {
-      alert("Please select a Mentor, Start Date, and End Date.");
+    if (!data?.mentorId || !data?.fromDate) {
+      alert("Please select a Mentor and Start Date.");
       return;
     }
 
@@ -54,27 +59,59 @@ const MentorshipManager = () => {
           mentorId: data.mentorId,
           collegeId,
           fromDate: data.fromDate,
-          toDate: data.toDate,
+          toDate: data.toDate || null,
           description: data.description || "",
         }),
       });
+
+      const result = await response.json();
 
       if (response.ok) {
         alert("Mentor assigned successfully!");
         fetchData();
       } else {
-        alert("Failed to assign mentor.");
+        alert(result.message || "Failed to assign mentor.");
       }
     } catch (error) {
       console.error("Error during assignment:", error);
+      alert("An unexpected error occurred.");
     }
   };
 
-  console.log(activeMappings)
+  console.log(activeMappings);
 
   if (loading) {
-    return <div className="p-10 text-center font-bold text-[#135bec]">Loading mentorship data...</div>;
+    return (
+      <div className="p-10 text-center font-bold text-[#135bec]">
+        Loading mentorship data...
+      </div>
+    );
   }
+
+  const handleUnassign = async (studentmentorid: number) => {
+    const confirmDelete = confirm(
+      "Are you sure you want to end this mentorship?",
+    );
+    if (!confirmDelete) return;
+    try {
+      const response = await fetch("/api/mentorship", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ studentMentorId: studentmentorid }),
+      });
+
+      console.log("::::RESPONSE::::", response)
+
+      if (response.ok) {
+        alert("Mentorship ended successfully!");
+        fetchData();
+      } else {
+        alert("Failed to end mentorship");
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
   return (
     <div className="bg-[#f6f6f8] min-h-screen text-[#111318] font-sans">
@@ -87,7 +124,9 @@ const MentorshipManager = () => {
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 mb-8">
           <div className="flex flex-col gap-1">
             <h1 className="text-4xl font-black tracking-tight text-[#111318]">
-              {activeTab === "active" ? "Manage Mentorship Mappings" : "Assign Mentors to Students"}
+              {activeTab === "active"
+                ? "Manage Mentorship Mappings"
+                : "Assign Mentors to Students"}
             </h1>
             <p className="text-gray-500 text-base">
               {activeTab === "active"
@@ -101,17 +140,19 @@ const MentorshipManager = () => {
         <div className="flex p-1 bg-gray-200/50 rounded-xl w-fit mb-6">
           <button
             onClick={() => setActiveTab("active")}
-            className={`px-6 py-2 rounded-lg text-sm font-bold transition-all ${
-              activeTab === "active" ? "bg-white text-[#135bec] shadow-sm" : "text-gray-500 hover:text-[#135bec]"
-            }`}
+            className={`px-6 py-2 rounded-lg text-sm font-bold transition-all ${activeTab === "active"
+              ? "bg-white text-[#135bec] shadow-sm"
+              : "text-gray-500 hover:text-[#135bec]"
+              }`}
           >
             Active Mappings
           </button>
           <button
             onClick={() => setActiveTab("assign")}
-            className={`px-6 py-2 rounded-lg text-sm font-bold transition-all ${
-              activeTab === "assign" ? "bg-white text-[#135bec] shadow-sm" : "text-gray-500 hover:text-[#135bec]"
-            }`}
+            className={`px-6 py-2 rounded-lg text-sm font-bold transition-all ${activeTab === "assign"
+              ? "bg-white text-[#135bec] shadow-sm"
+              : "text-gray-500 hover:text-[#135bec]"
+              }`}
           >
             Assign New
           </button>
@@ -123,46 +164,80 @@ const MentorshipManager = () => {
             <table className="w-full text-left border-collapse">
               <thead className="bg-gray-50 border-b border-gray-100">
                 <tr>
-                  <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Student Details</th>
                   <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">
-                    {activeTab === "active" ? "Assigned Mentor" : "Mentor & Description"}
+                    Student Details
                   </th>
                   <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">
-                    {activeTab === "active" ? "Status & Date" : "Mentorship Period"}
+                    {activeTab === "active"
+                      ? "Assigned Mentor"
+                      : "Mentor & Description"}
                   </th>
-                  <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider text-right">Action</th>
+                  <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">
+                    {activeTab === "active"
+                      ? "Status & Date"
+                      : "Mentorship Period"}
+                  </th>
+                  <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider text-right">
+                    Action
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
                 {/* ACTIVE TAB */}
                 {activeTab === "active" &&
                   activeMappings.map((row, idx) => (
-                    <tr key={idx} className="hover:bg-gray-50 transition-colors">
+                    <tr
+                      key={idx}
+                      className="hover:bg-gray-50 transition-colors"
+                    >
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
                           <div className="h-10 w-10 rounded-full flex items-center justify-center font-bold text-sm bg-blue-50 text-[#135bec]">
-                            {row.student?.StudentName?.charAt(0).toUpperCase() || "S"}
+                            {row.student?.StudentName?.charAt(
+                              0,
+                            ).toUpperCase() || "S"}
                           </div>
                           <div>
-                            <p className="font-bold text-sm text-gray-900">{row.student?.StudentName}</p>
-                            <p className="text-xs text-gray-500">ID: {row.student?.EnrollmentNo}</p>
+                            <p className="font-bold text-sm text-gray-900">
+                              {row.student?.StudentName}
+                            </p>
+                            <p className="text-xs text-gray-500">
+                              ID: {row.student?.EnrollmentNo}
+                            </p>
                           </div>
                         </div>
                       </td>
                       <td className="px-6 py-4">
-                        <p className="text-sm font-semibold text-gray-800">{row.mentor?.MentorName}</p>
-                        <p className="text-xs text-gray-500">{row.Description || "No Description"}</p>
+                        <p className="text-sm font-semibold text-gray-800">
+                          {row.mentor?.MentorName}
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          {row.Description || "No Description"}
+                        </p>
                       </td>
                       <td className="px-6 py-4">
-                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                          Active
+                        <span
+                          className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${new Date(row.FromDate) > new Date()
+                              ? "bg-blue-100 text-blue-800"
+                              : "bg-green-100 text-green-800"
+                            }`}
+                        >
+                          {new Date(row.FromDate) > new Date()
+                            ? "Upcoming"
+                            : "Active"}
                         </span>
                         <p className="text-[10px] text-gray-400 mt-1">
-                          Ends: {new Date(row.ToDate).toLocaleDateString()}
+                          {new Date(row.FromDate) > new Date()
+                            ? `Starts: ${new Date(row.FromDate).toLocaleDateString()}`
+                            : row.ToDate
+                              ? `Ends: ${new Date(row.ToDate).toLocaleDateString()}`
+                              : "Ongoing"}
                         </p>
                       </td>
                       <td className="px-6 py-4 text-right">
-                        <button className="bg-red-50 text-red-600 px-4 py-1.5 rounded-lg text-sm font-bold hover:bg-red-100 transition-colors">
+                        <button onClick={() => {
+                          handleUnassign(row.StudentMentorID)
+                        }} className="bg-red-50 text-red-600 px-4 py-1.5 rounded-lg text-sm font-bold hover:bg-red-100 transition-colors">
                           End Early
                         </button>
                       </td>
@@ -172,16 +247,29 @@ const MentorshipManager = () => {
                 {/* ASSIGN TAB */}
                 {activeTab === "assign" &&
                   unassignedStudents.map((student) => (
-                    <tr key={student.StudentID} className="hover:bg-gray-50 transition-colors">
+                    <tr
+                      key={student.StudentID}
+                      className="hover:bg-gray-50 transition-colors"
+                    >
                       <td className="px-6 py-4">
-                        <p className="font-bold text-sm text-gray-900">{student.StudentName}</p>
-                        <p className="text-xs text-gray-500">Dept: {student.Department || "General"}</p>
+                        <p className="font-bold text-sm text-gray-900">
+                          {student.StudentName}
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          Dept: {student.Department || "General"}
+                        </p>
                       </td>
                       <td className="px-6 py-4 min-w-[200px]">
                         <div className="flex flex-col gap-2">
                           <select
                             className="w-full bg-gray-50 border border-gray-200 rounded-lg text-sm py-2 px-3 outline-none focus:ring-1 focus:ring-[#135bec]"
-                            onChange={(e) => handleInputChange(student.StudentID, "mentorId", e.target.value)}
+                            onChange={(e) =>
+                              handleInputChange(
+                                student.StudentID,
+                                "mentorId",
+                                e.target.value,
+                              )
+                            }
                             value={formData[student.StudentID]?.mentorId || ""}
                           >
                             <option value="">Select Mentor...</option>
@@ -195,33 +283,57 @@ const MentorshipManager = () => {
                             type="text"
                             placeholder="Mentorship description..."
                             className="w-full bg-gray-50 border border-gray-200 rounded-lg text-xs py-2 px-3 outline-none"
-                            onChange={(e) => handleInputChange(student.StudentID, "description", e.target.value)}
+                            onChange={(e) =>
+                              handleInputChange(
+                                student.StudentID,
+                                "description",
+                                e.target.value,
+                              )
+                            }
                           />
                         </div>
                       </td>
                       <td className="px-6 py-4">
                         <div className="flex flex-col gap-2">
                           <div className="flex items-center gap-2">
-                            <span className="text-[10px] font-bold text-gray-400 w-8">FROM</span>
+                            <span className="text-[10px] font-bold text-gray-400 w-8">
+                              FROM
+                            </span>
                             <input
                               type="date"
                               className="text-xs border rounded p-1 outline-none"
-                              onChange={(e) => handleInputChange(student.StudentID, "fromDate", e.target.value)}
+                              onChange={(e) =>
+                                handleInputChange(
+                                  student.StudentID,
+                                  "fromDate",
+                                  e.target.value,
+                                )
+                              }
                             />
                           </div>
                           <div className="flex items-center gap-2">
-                            <span className="text-[10px] font-bold text-gray-400 w-8">TO</span>
+                            <span className="text-[10px] font-bold text-gray-400 w-8">
+                              TO
+                            </span>
                             <input
                               type="date"
                               className="text-xs border rounded p-1 outline-none"
-                              onChange={(e) => handleInputChange(student.StudentID, "toDate", e.target.value)}
+                              onChange={(e) =>
+                                handleInputChange(
+                                  student.StudentID,
+                                  "toDate",
+                                  e.target.value,
+                                )
+                              }
                             />
                           </div>
                         </div>
                       </td>
                       <td className="px-6 py-4 text-right">
                         <button
-                          onClick={() => handleAssign(student.StudentID, student.CollegeID)}
+                          onClick={() =>
+                            handleAssign(student.StudentID, student.CollegeID)
+                          }
                           className="bg-[#135bec] text-white px-5 py-2 rounded-lg text-sm font-bold hover:bg-blue-700 shadow-sm transition-all"
                         >
                           Assign

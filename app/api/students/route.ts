@@ -80,11 +80,11 @@ export async function POST(req: Request) {
       },
     });
 
-    // try {
-    //   await sendStudentEmail(StudentName, password, EmailAddress);
-    // } catch (mailError) {
-    //   console.error("Email service failed:", mailError);
-    // }
+    try {
+      await sendStudentEmail(StudentName, password, EmailAddress);
+    } catch (mailError) {
+      console.error("Email service failed:", mailError);
+    }
 
     revalidatePath("/admin/students");
     revalidatePath("/admin/dashboard");

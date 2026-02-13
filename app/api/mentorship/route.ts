@@ -33,12 +33,9 @@ export async function GET(req: Request) {
     where: {
       CollegeID,
       AND: [
-        { FromDate: { lte: now } },
+      
         {
-          OR: [
-            { ToDate: null },
-            { ToDate: { gt: now } },
-          ],
+          OR: [{ ToDate: null }, { ToDate: { gt: now } }],
         },
       ],
     },
@@ -55,12 +52,8 @@ export async function GET(req: Request) {
       NOT: {
         studentmentor: {
           some: {
-            AND: [
-              { FromDate: { lte: now } },
-              {
-                OR: [{ ToDate: null }, { ToDate: { gt: now } }],
-              },
-            ],
+        
+            OR: [{ ToDate: null }, { ToDate: { gt: now } }],
           },
         },
       },
@@ -71,23 +64,31 @@ export async function GET(req: Request) {
   });
 
   const mentors = await prisma.mentor.findMany({
-    select: { MentorID: true, MentorName: true, Department: true }
-  })
+    select: { MentorID: true, MentorName: true, Department: true },
+  });
 
   return NextResponse.json({ unassignedStudents, activemappings, mentors });
 }
 
 export async function POST(req: Request) {
   try {
-    const { collegeId, mentorId, studentId, fromDate, toDate, description } = await req.json();
+    const { collegeId, mentorId, studentId, fromDate, toDate, description } =
+      await req.json();
+
+    if (!collegeId || !mentorId || !studentId || !fromDate) {
+      return NextResponse.json(
+        { success: false, message: "Missing required fields: collegeId, mentorId, studentId, or fromDate" },
+        { status: 400 },
+      );
+    }
 
     const parsedFromDate = new Date(fromDate);
-    const parsedToDate = new Date(toDate);
+    const parsedToDate = toDate ? new Date(toDate) : null;
 
-    if (isNaN(parsedFromDate.getTime()) || isNaN(parsedToDate.getTime())) {
+    if (isNaN(parsedFromDate.getTime()) || (parsedToDate && isNaN(parsedToDate.getTime()))) {
       return NextResponse.json(
         { success: false, message: "Invalid date format" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -104,11 +105,37 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ newAssignment });
   } catch (err) {
-    console.log(err);
-    return NextResponse.json({ error: "Assignment failed" }, { status: 500 });
+    console.error("Assignment error:", err);
+    return NextResponse.json({ success: false, message: "Assignment failed. Ensure Student/Mentor IDs are valid." }, { status: 500 });
   }
 }
 
-export async function DELETE(){
-  
+export async function DELETE(req: Request) {
+  try {
+    const body = await req.json();
+
+    const { studentMentorId } = body;  
+
+    if (!studentMentorId) {
+      return NextResponse.json(
+        { message: "StudentMentorID is required" },
+        { status: 400 }
+      );
+    }
+
+    await prisma.studentmentor.delete({
+      where: {
+        StudentMentorID: Number(studentMentorId),
+      },
+    });
+
+    return NextResponse.json({ message: "Deleted successfully" });
+
+  } catch (error) {
+    console.log("DELETE ERROR:", error);
+    return NextResponse.json(
+      { message: "Failed to end mentorship" },
+      { status: 500 }
+    );
+  }
 }

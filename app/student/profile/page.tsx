@@ -1,5 +1,3 @@
-"use client";
-
 import React from "react";
 import Link from "next/link";
 import { 
@@ -13,9 +11,29 @@ import {
   UserRoundPen,
   Share2
 } from "lucide-react";
+import { getSessionUser } from "@/app/lib/auth";
+import { prisma } from "@/app/lib/prisma";
 
-export default function StudentProfile() {
-  const initials = "JD";
+export default async function StudentProfile() {
+  const sessionUser = await getSessionUser()
+  const studata = await prisma.student.findFirst({
+    where:{
+      UserID:sessionUser?.UserID
+    }
+  })
+  console.log(studata)
+  // const initials = "JD";
+  const getInitials = (name?: string) => {
+  if (!name) return "A";
+
+  return name
+    .trim()
+    .split(" ")
+    .map(n => n[0])
+    .join("")
+    .toUpperCase();
+};
+
 
   return (
     <div className="min-h-screen font-sans selection:bg-blue-100 selection:text-blue-700">
@@ -26,16 +44,16 @@ export default function StudentProfile() {
           <div className="flex flex-col md:flex-row items-center md:items-end gap-6">
             {/* Initials Avatar */}
             <div className="size-32 rounded-3xl bg-slate-50 border-2 border-slate-100 shadow-sm flex items-center justify-center text-4xl font-black text-blue-600 tracking-tight">
-              {initials}
+              {getInitials(sessionUser?.Name)}
             </div>
 
             <div className="flex-1 text-center md:text-left space-y-1">
               <h1 className="text-4xl font-black text-slate-900 tracking-tight">
-                John Doe
+                {sessionUser?.Name}
               </h1>
               <p className="text-slate-500 font-medium flex items-center justify-center md:justify-start gap-2">
                 <IdCard className="size-5 text-blue-600" />
-                Enrollment: <span className="font-mono text-slate-700">STU-2023-8842</span>
+                Enrollment: <span className="font-mono text-slate-700">{studata?.EnrollmentNo}</span>
               </p>
             </div>
 
@@ -63,21 +81,21 @@ export default function StudentProfile() {
                 <h2 className="font-bold text-slate-800">Personal Details</h2>
               </div>
               <div className="p-8 grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div>
+                {/* <div>
                   <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Full Name</label>
-                  <p className="mt-1 text-slate-900 font-semibold text-lg">John Alexander Doe</p>
+                  <p className="mt-1 text-slate-900 font-semibold text-lg">{sessionUser?.Name}</p>
                 </div>
                 <div>
                   <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Enrollment No.</label>
-                  <p className="mt-1 text-slate-900 font-bold font-mono">STU-2023-8842</p>
-                </div>
+                  <p className="mt-1 text-slate-900 font-bold font-mono">{}</p>
+                </div> */}
                 <div>
                   <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Mobile Number</label>
-                  <p className="mt-1 text-slate-900 font-semibold">+1 (555) 012-3456</p>
+                  <p className="mt-1 text-slate-900 font-semibold">{studata?.MobileNo}</p>
                 </div>
                 <div>
                   <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Email Address</label>
-                  <p className="mt-1 text-blue-600 font-semibold decoration-2 underline-offset-4">john.doe@university.edu</p>
+                  <p className="mt-1 text-blue-600 font-semibold decoration-2 underline-offset-4">{sessionUser?.Email}</p>
                 </div>
               </div>
             </section>
@@ -92,11 +110,11 @@ export default function StudentProfile() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   <div>
                     <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Department</label>
-                    <p className="mt-1 text-slate-900 font-semibold">Computer Science & Engineering</p>
+                    <p className="mt-1 text-slate-900 font-semibold">{studata?.Department}</p>
                   </div>
                   <div>
                     <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Current Semester</label>
-                    <p className="mt-1 text-slate-900 font-semibold">Semester 6 (Final Year)</p>
+                    <p className="mt-1 text-slate-900 font-semibold">{studata?.CurrentSem}</p>
                   </div>
                 </div>
                 
@@ -111,7 +129,7 @@ export default function StudentProfile() {
               </div>
               <div className="p-8">
                 <p className="text-slate-600 leading-relaxed font-medium">
-                  Enthusiastic student currently pursuing Computer Science. I am passionate about full-stack development and machine learning. Looking to build strong analytical skills and contribute to meaningful tech projects through the mentoring program.
+                  {studata?.Description}
                 </p>
               </div>
             </section>
