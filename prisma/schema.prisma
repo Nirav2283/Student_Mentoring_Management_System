@@ -145,6 +145,14 @@ model mentor {
   @@index([UserID], map: "fk_mentor_user")
 }
 
+model passwordresettoken {
+  email        String
+  token        String   @unique(map: "PasswordResetToken_token_key")
+  expiresAt    DateTime
+  createdAt    DateTime @default(now())
+  resettokenid Int      @id @default(autoincrement())
+}
+
 enum studentmentoring_AttendanceStatus {
   PRESENT
   ABSENT

@@ -1,31 +1,61 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState } from "react";
 
-const ResetPassword = () => {
-  const [email, setEmail] = useState('');
+const ForgotPassword = () => {
+  const [email, setEmail] = useState("");
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Simulate API call
-    if (email) {
+
+    try {
+      setLoading(true);
+      setError("");
+      setMessage("");
+
+      const res = await fetch("/api/auth/forgot-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.error || "Something went wrong");
+        return;
+      }
+
+      setMessage(data.message);
       setIsSubmitted(true);
+    } catch (err) {
+      setError("Server error. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div className="min-h-screen bg-[#fafafa] font-sans flex items-center justify-center p-6">
       {/* Google Fonts & Material Symbols */}
-      <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-      <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700&display=swap" rel="stylesheet" />
+      <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+        rel="stylesheet"
+      />
+      <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700&display=swap"
+        rel="stylesheet"
+      />
 
       <main className="w-full max-w-[440px] flex flex-col items-center">
-        
         {/* Branding Icon */}
         <div className="mb-5 p-4 bg-blue-100 rounded-2xl">
           <span className="material-symbols-outlined text-blue-600 text-4xl block">
-            {isSubmitted ? 'mail' : 'lock_reset'}
+            {isSubmitted ? "mail" : "lock_reset"}
           </span>
         </div>
 
@@ -38,13 +68,22 @@ const ResetPassword = () => {
                   Reset your password
                 </h1>
                 <p className="text-[#647e87] text-sm md:text-base leading-relaxed">
-                  Enter the email address associated with your account and we'll send you a link to reset your password.
+                  Enter the email address associated with your account and we'll
+                  send you a link to reset your password.
                 </p>
+                {error && (
+                  <p className="text-red-500 text-sm mt-3 font-semibold text-center">
+                    {error}
+                  </p>
+                )}
               </div>
 
               <form className="space-y-6" onSubmit={handleSubmit}>
                 <div className="flex flex-col gap-2">
-                  <label className="text-[#111617] text-sm font-semibold" htmlFor="email">
+                  <label
+                    className="text-[#111617] text-sm font-semibold"
+                    htmlFor="email"
+                  >
                     Email Address
                   </label>
                   <input
@@ -60,15 +99,18 @@ const ResetPassword = () => {
 
                 <button
                   type="submit"
-                  className="w-full flex items-center justify-center rounded-xl h-12 bg-blue-600 text-white text-base font-bold shadow-lg shadow-[#167b9c]/20 hover:bg-[#126682] active:scale-[0.98] transition-all"
+                  disabled={loading}
+                  className="w-full flex items-center justify-center rounded-xl h-12 bg-blue-600 text-white text-base font-bold shadow-lg disabled:opacity-50"
                 >
-                  Send reset link
+                  {loading ? "Sending..." : "Send reset link"}
                 </button>
               </form>
             </>
           ) : (
             <div className="text-center">
-              <h2 className="text-[#111617] text-2xl font-bold mb-3">Check your email</h2>
+              <h2 className="text-[#111617] text-2xl font-bold mb-3">
+                Check your email
+              </h2>
               <p className="text-[#647e87] text-sm md:text-base leading-relaxed mb-8">
                 We've sent a password reset link to <br />
                 <span className="font-semibold text-[#111617]">{email}</span>
@@ -95,6 +137,10 @@ const ResetPassword = () => {
             </a>
           </div>
         </div>
+        <p className="text-[#647e87] text-sm md:text-base leading-relaxed mb-8">
+        {message} <br />
+        <span className="font-semibold text-[#111617]">{email}</span>
+      </p>
 
         {/* Footer Info */}
         <div className="mt-10 text-center">
@@ -103,8 +149,9 @@ const ResetPassword = () => {
           </p>
         </div>
       </main>
+      
     </div>
   );
 };
 
-export default ResetPassword;
+export default ForgotPassword;
