@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/app/lib/prisma";
 import DeleteButton from "@/app/ui/DeleteButton";
 import { revalidatePath } from "next/cache";
+import Search from "@/app/ui/Search";
 
 async function deleteStudent(formData: FormData) {
   "use server";
@@ -25,7 +26,13 @@ async function deleteStudent(formData: FormData) {
   revalidatePath("/admin/students");
 }
 
-export default async function StudentListPage() {
+export default async function StudentListPage(props: {
+  searchParams?: Promise<{
+    query?: string;
+  }>;
+}) {
+  const searchParams = await props.searchParams;
+  const query = searchParams?.query || "";
   const token = (await cookies()).get("session")?.value;
 
   if (!token) {
@@ -46,11 +53,18 @@ export default async function StudentListPage() {
 
   const CollegeID = session.users.CollegeID;
 
-  console.log("::::CollegeID:::::",CollegeID)
+  console.log("::::CollegeID:::::", CollegeID)
 
   const students = await prisma.student.findMany({
     where: {
       CollegeID,
+      OR: [
+        { StudentName: { contains: query } },
+        { EmailAddress: { contains: query } },
+        { Department: { contains: query } },
+        { EnrollmentNo: { contains: query } },
+        ...(isNaN(Number(query)) || query === "" ? [] : [{ StudentID: Number(query) }]),
+      ]
     },
     select: {
       StudentID: true,
@@ -72,23 +86,12 @@ export default async function StudentListPage() {
     },
   });
 
- 
-
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Top Search and Actions Bar */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
         <div className="flex flex-col sm:flex-row gap-3 flex-1">
-          <div className="relative flex-1 min-w-[240px]">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-slate-400 text-xl">
-              search
-            </span>
-            <input
-              className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-gray-200 bg-slate-50 text-sm focus:ring-2 focus:ring-[#135bec]/20 focus:border-[#135bec] transition-all outline-none"
-              placeholder="Search by name, email, or ID..."
-              type="text"
-            />
-          </div>
+          <Search placeholder="Search by name, email, or ID..." />
           <div className="flex gap-3">
             <select className="px-3 py-2.5 rounded-lg border border-gray-200 bg-white text-sm text-slate-600 focus:ring-2 focus:ring-[#135bec]/20 outline-none cursor-pointer">
               <option value="">All Colleges</option>
@@ -182,14 +185,6 @@ export default async function StudentListPage() {
                       </div>
                     )}
                   </td>
-                  {/* <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold ${
-                      student.Status === true ? 'bg-emerald-50 text-emerald-700' : 
-                      student.Status === false ? 'bg-amber-50 text-amber-700' : 'bg-slate-100 text-slate-600'
-                    }`}>
-                      {student.Status}
-                    </span>
-                  </td> */}
 
                   <td className="px-6 py-4 whitespace-nowrap">
                     {student.Status == true ? (
@@ -237,35 +232,8 @@ export default async function StudentListPage() {
             </tbody>
           </table>
         </div>
-
-        {/* Pagination */}
-        {/* <div className="px-6 py-4 bg-white border-t border-gray-100 flex items-center justify-between">
-          <p className="text-sm text-slate-500">
-            Showing <span className="font-bold text-slate-900">1</span> to{" "}
-            <span className="font-bold text-slate-900">5</span> of{" "}
-            <span className="font-bold text-slate-900">{totalStudents}</span>{" "}
-            students
-          </p>
-          <div className="flex gap-1">
-            <button className="p-2 border border-gray-200 rounded-lg text-slate-400 hover:bg-slate-50">
-              <span className="material-symbols-outlined text-sm">
-                chevron_left
-              </span>
-            </button>
-            <button className="px-3.5 py-1 border border-[#135bec] bg-blue-50 text-[#135bec] rounded-lg font-bold text-sm">
-              1
-            </button>
-            <button className="px-3.5 py-1 border border-gray-200 rounded-lg text-slate-600 hover:bg-slate-50 font-medium text-sm">
-              2
-            </button>
-            <button className="p-2 border border-gray-200 rounded-lg text-slate-400 hover:bg-slate-50">
-              <span className="material-symbols-outlined text-sm">
-                chevron_right
-              </span>
-            </button>
-          </div>
-        </div> */}
       </div>
     </div>
   );
 }
+

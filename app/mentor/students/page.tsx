@@ -1,19 +1,37 @@
-"use client";
-
 import React from 'react';
 import Link from 'next/link';
 import Head from 'next/head';
+import { prisma } from '@/app/lib/prisma';
+import { getSessionUser } from '@/app/lib/auth';
 
 // Updated Sample Data to match your original mentor-specific list
-const students = [
-  { id: "EN2021001", name: "John Doe", dept: "Computer Science", year: "3rd Sem", initial: "JD", status: "Active" },
-  { id: "EN2021045", name: "Sarah Miller", dept: "Information Tech", year: "3rd Sem", initial: "SM", status: "Active" },
-  { id: "EN2022012", name: "Michael Chen", dept: "Computer Science", year: "2nd Sem", initial: "MC", status: "Active" },
-  { id: "EN2021089", name: "Emily Davis", dept: "Mechanical Eng", year: "3rd Sem", initial: "ED", status: "Active" },
-  { id: "EN2023005", name: "Robert Wilson", dept: "Electrical Eng", year: "1st Sem", initial: "RW", status: "Active" },
-];
+export default async function StudentListPage() {
+  const session = await getSessionUser()
 
-export default function StudentListPage() {
+  const mentor = await prisma.mentor.findFirst({
+    where:{
+      UserID:session?.UserID
+    }
+  })
+
+  const assignedStudents = await prisma.studentmentor.findMany({
+    where:{
+      MentorID:mentor?.MentorID
+    },
+    include:{
+      student:true
+    }
+  })
+  const getInitials = (name: string) => {
+  if (!name) return "S";
+  return name
+    .split(" ")
+    .map((word) => word.charAt(0))
+    .join("")
+    .toUpperCase();
+};
+
+  const students = assignedStudents.map((item) => item.student);
   return (
     <div className="min-h-screen bg-slate-50/50 p-8 font-sans animate-fade-in">
       <Head>
@@ -26,10 +44,10 @@ export default function StudentListPage() {
         <header className="flex items-end justify-between mb-2">
           <div>
             <h1 className="text-3xl font-black tracking-tight text-slate-900">My Students</h1>
-            <p className="text-slate-500 mt-1">Manage and monitor your 48 assigned students</p>
+            <p className="text-slate-500 mt-1">Manage and monitor your {students.length} assigned students</p>
           </div>
           <div className="bg-[#135bec]/10 px-4 py-2 rounded-lg border border-[#135bec]/20">
-            <span className="text-[#135bec] font-bold">48</span>
+            <span className="text-[#135bec] font-bold">{students.length}</span>
             <span className="text-[#135bec]/70 text-sm ml-1 font-medium">Total Active</span>
           </div>
         </header>
@@ -80,29 +98,29 @@ export default function StudentListPage() {
               </thead>
               <tbody className="divide-y divide-gray-100">
                 {students.map((student) => (
-                  <tr key={student.id} className="hover:bg-slate-50/80 transition-colors group">
+                  <tr key={student.StudentID} className="hover:bg-slate-50/80 transition-colors group">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center gap-4">
                         <div className="size-9 rounded-full bg-blue-50 text-[#135bec] flex items-center justify-center font-bold text-xs border border-blue-100">
-                          {student.initial}
+                          {getInitials(student.StudentName)}
                         </div>
-                        <div className="text-sm font-bold text-slate-900">{student.name}</div>
+                        <div className="text-sm font-bold text-slate-900">{student.StudentName}</div>
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500 font-mono">
-                      {student.id}
+                      {student.EnrollmentNo}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-slate-100 text-slate-700 border border-slate-200">
-                        {student.dept}
+                        {student.Department}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600 font-medium">
-                      {student.year}
+                      {student.CurrentSem}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right">
                       <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <Link href={`/mentor/students/${student.id}`}>
+                        <Link href={`/mentor/students/${student.StudentID}`}>
                         <button className="p-2 text-slate-400 hover:text-[#135bec] hover:bg-blue-50 rounded-lg transition-colors" title="View Details">
                           <span className="material-symbols-outlined text-[20px]">visibility</span>
                         </button>
@@ -119,7 +137,7 @@ export default function StudentListPage() {
           {/* Pagination */}
           <div className="px-6 py-4 bg-white border-t border-gray-100 flex items-center justify-between">
             <p className="text-sm text-slate-500 font-medium">
-              Showing <span className="text-slate-900">1</span> to <span className="text-slate-900">5</span> of <span className="text-slate-900">48</span> students
+              Showing <span className="text-slate-900">1</span> to <span className="text-slate-900">5</span> of <span className="text-slate-900">{students.length}</span> students
             </p>
             <div className="flex gap-1">
               <button className="p-2 border border-gray-200 rounded-lg text-slate-400 hover:bg-slate-50 transition-colors disabled:opacity-30" disabled>

@@ -33,7 +33,7 @@ export async function GET(req: Request) {
     where: {
       CollegeID,
       AND: [
-      
+
         {
           OR: [{ ToDate: null }, { ToDate: { gt: now } }],
         },
@@ -52,7 +52,7 @@ export async function GET(req: Request) {
       NOT: {
         studentmentor: {
           some: {
-        
+
             OR: [{ ToDate: null }, { ToDate: { gt: now } }],
           },
         },
@@ -64,6 +64,7 @@ export async function GET(req: Request) {
   });
 
   const mentors = await prisma.mentor.findMany({
+    where: { CollegeID },
     select: { MentorID: true, MentorName: true, Department: true },
   });
 
@@ -114,7 +115,7 @@ export async function DELETE(req: Request) {
   try {
     const body = await req.json();
 
-    const { studentMentorId } = body;  
+    const { studentMentorId } = body;
 
     if (!studentMentorId) {
       return NextResponse.json(

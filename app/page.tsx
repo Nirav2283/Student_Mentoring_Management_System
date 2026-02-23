@@ -22,8 +22,6 @@ export default function MentoraLanding() {
     <div className="bg-[#f6f6f8] text-[#111318] font-sans overflow-x-hidden min-h-screen flex flex-col">
 
       <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=block" />
-
-
       <header className="w-full border-b border-gray-200 bg-white/80 backdrop-blur-md sticky top-0 z-50">
         <div className="max-w-[1280px] mx-auto px-4 sm:px-10 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">

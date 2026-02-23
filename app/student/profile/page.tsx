@@ -46,7 +46,6 @@ export default async function StudentProfile() {
             <div className="size-32 rounded-3xl bg-slate-50 border-2 border-slate-100 shadow-sm flex items-center justify-center text-4xl font-black text-blue-600 tracking-tight">
               {getInitials(sessionUser?.Name)}
             </div>
-
             <div className="flex-1 text-center md:text-left space-y-1">
               <h1 className="text-4xl font-black text-slate-900 tracking-tight">
                 {sessionUser?.Name}
