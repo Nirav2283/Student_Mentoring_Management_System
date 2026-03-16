@@ -6,54 +6,43 @@ import { prisma } from "@/app/lib/prisma";
 import DeleteButton from "@/app/ui/DeleteButton";
 import { revalidatePath } from "next/cache";
 import Search from "@/app/ui/Search";
+import { Card, CardContent } from "@/app/components/ui/card";
+import { Button } from "@/app/components/ui/button";
+import { Badge } from "@/app/components/ui/badge";
+import { Avatar, AvatarFallback } from "@/app/components/ui/avatar";
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/app/components/ui/table";
+import { UserPlus, Eye, Pencil, User } from "lucide-react";
 
 async function deleteStudent(formData: FormData) {
   "use server";
-
   const id = Number(formData.get("studentId"));
-
   const student = await prisma.student.findUnique({
     where: { StudentID: id },
     select: { UserID: true },
   });
-
   if (student) {
-    await prisma.users.delete({
-      where: { UserID: student.UserID },
-    });
+    await prisma.users.delete({ where: { UserID: student.UserID } });
   }
-
   revalidatePath("/admin/students");
 }
 
 export default async function StudentListPage(props: {
-  searchParams?: Promise<{
-    query?: string;
-  }>;
+  searchParams?: Promise<{ query?: string }>;
 }) {
   const searchParams = await props.searchParams;
   const query = searchParams?.query || "";
   const token = (await cookies()).get("session")?.value;
 
-  if (!token) {
-    redirect("/login/admin");
-  }
+  if (!token) redirect("/login/admin");
+
   const session = await prisma.usersession.findFirst({
-    where: {
-      token,
-    },
-    include: {
-      users: true,
-    },
+    where: { token },
+    include: { users: true },
   });
 
-  if (!session) {
-    return <p>Unauthorized</p>;
-  }
+  if (!session) return <p>Unauthorized</p>;
 
   const CollegeID = session.users.CollegeID;
-
-  console.log("::::CollegeID:::::", CollegeID)
 
   const students = await prisma.student.findMany({
     where: {
@@ -64,24 +53,16 @@ export default async function StudentListPage(props: {
         { Department: { contains: query } },
         { EnrollmentNo: { contains: query } },
         ...(isNaN(Number(query)) || query === "" ? [] : [{ StudentID: Number(query) }]),
-      ]
+      ],
     },
     select: {
-      StudentID: true,
-      EmailAddress: true,
-      StudentName: true,
-      Status: true,
-      CurrentSem: true,
-      Department: true,
-
+      StudentID: true, EmailAddress: true, StudentName: true,
+      Status: true, CurrentSem: true, Department: true,
       studentmentor: {
-        select: {
-          mentor: {
-            select: {
-              MentorName: true,
-            },
-          },
-        },
+        where: { OR: [{ ToDate: null }, { ToDate: { gt: new Date() } }] },
+        orderBy: { CreatedAt: "desc" },
+        take: 1,
+        select: { mentor: { select: { MentorName: true } } },
       },
     },
   });
@@ -89,151 +70,85 @@ export default async function StudentListPage(props: {
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Top Search and Actions Bar */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
-        <div className="flex flex-col sm:flex-row gap-3 flex-1">
-          <Search placeholder="Search by name, email, or ID..." />
-          <div className="flex gap-3">
-            <select className="px-3 py-2.5 rounded-lg border border-gray-200 bg-white text-sm text-slate-600 focus:ring-2 focus:ring-[#135bec]/20 outline-none cursor-pointer">
-              <option value="">All Colleges</option>
-              <option value="eng">Engineering</option>
-              <option value="arts">Arts & Sciences</option>
-            </select>
+      <Card>
+        <CardContent className="p-4 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+          <div className="flex flex-col sm:flex-row gap-3 flex-1">
+            <Search placeholder="Search by name, email, or ID..." />
           </div>
-        </div>
-
-        <div className="flex items-center gap-3">
-          <button className="flex items-center gap-2 px-4 py-2.5 rounded-lg border border-gray-200 bg-white text-slate-600 hover:bg-slate-50 transition-all text-sm font-medium">
-            <span className="material-symbols-outlined text-[20px]">
-              download
-            </span>
-            <span className="hidden sm:inline">Import Bulk</span>
-          </button>
-          <Link
-            href="/admin/students/add"
-            className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-[#135bec] hover:bg-blue-700 text-white transition-all text-sm font-bold shadow-md shadow-[#135bec]/25"
-          >
-            <span className="material-symbols-outlined text-[20px]">add</span>
-            <span>Add Student</span>
+          <Link href="/admin/students/add">
+            <Button className="gap-2">
+              <UserPlus className="size-4" />
+              Add Student
+            </Button>
           </Link>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
 
-      {/* Student Table Container */}
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-slate-50">
-              <tr>
-                <th className="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">
-                  Student Details
-                </th>
-                <th className="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">
-                  College / Dept
-                </th>
-                <th className="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">
-                  Mentor
-                </th>
-                <th className="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">
-                  Status
-                </th>
-                <th className="px-6 py-4 text-right text-xs font-bold text-slate-500 uppercase tracking-wider">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
-              {students.map((student) => (
-                <tr
-                  key={student.StudentID}
-                  className="hover:bg-slate-50/80 transition-colors group"
-                >
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center gap-4">
-                      <div className="size-10 rounded-full bg-blue-50 text-[#135bec] flex items-center justify-center font-bold text-sm border border-blue-100">
-                        {student.StudentName[0]}
-                      </div>
-                      <div>
-                        <div className="text-sm font-bold text-slate-900">
-                          {student.StudentName}
-                        </div>
-                        <div className="text-xs text-slate-500">
-                          {student.EmailAddress}
-                        </div>
-                      </div>
+      {/* Student Table */}
+      <Card>
+        <Table>
+          <TableHeader>
+            <TableRow className="bg-muted/50">
+              <TableHead>Student Details</TableHead>
+              <TableHead>Department</TableHead>
+              <TableHead>Mentor</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead className="text-right">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {students.map((student) => (
+              <TableRow key={student.StudentID} className="group">
+                <TableCell>
+                  <div className="flex items-center gap-4">
+                    <Avatar>
+                      <AvatarFallback>{student.StudentName[0]}</AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <div className="text-sm font-bold text-foreground">{student.StudentName}</div>
+                      <div className="text-xs text-muted-foreground">{student.EmailAddress}</div>
                     </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-slate-900 font-medium">
-                      {student.Department}
-                    </div>
-                    {/* <div className="text-xs text-slate-500">{student.dept}</div> */}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    {student.studentmentor[0]?.mentor?.MentorName ? (
-                      <div className="flex items-center gap-2 text-sm text-slate-700">
-                        <span className="material-symbols-outlined text-slate-400 text-lg">
-                          person
-                        </span>
-                        {student.studentmentor[0].mentor.MentorName}
-                      </div>
-                    ) : (
-                      <div className="flex items-center gap-2 text-sm text-slate-700">
-                        <span className="material-symbols-outlined text-slate-400 text-lg">
-                          person
-                        </span>
-                        Not assinged
-                      </div>
-                    )}
-                  </td>
-
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    {student.Status == true ? (
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700">
-                        Active
-                      </span>
-                    ) : (
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-50 text-amber-700">
-                        Deactive
-                      </span>
-                    )}
-                  </td>
-
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <div className="flex items-center justify-end gap-1 sm:gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <Link
-                        href={`/admin/students/${student.StudentID}`}
-                        className="p-1.5 text-slate-400 hover:text-[#135bec] hover:bg-blue-50 rounded-lg transition-colors"
-                        title="View Profile"
-                      >
-                        <span className="material-symbols-outlined text-[20px]">
-                          visibility
-                        </span>
-                      </Link>
-                      <button
-                        className="p-1.5 text-slate-400 hover:text-slate-900 hover:bg-gray-100 rounded-lg transition-colors"
-                        title="Edit Student"
-                      >
-                        <span className="material-symbols-outlined text-[20px]">
-                          edit
-                        </span>
-                      </button>
-                      <form action={deleteStudent}>
-                        <input
-                          type="hidden"
-                          name="studentId"
-                          value={student.StudentID}
-                        />
-                        <DeleteButton />
-                      </form>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <div className="text-sm text-foreground font-medium">{student.Department}</div>
+                </TableCell>
+                <TableCell>
+                  <div className="flex items-center gap-2 text-sm text-foreground">
+                    <User className="size-4 text-muted-foreground" />
+                    {student.studentmentor[0]?.mentor?.MentorName || "Not assigned"}
+                  </div>
+                </TableCell>
+                <TableCell>
+                  {student.Status ? (
+                    <Badge variant="success">Active</Badge>
+                  ) : (
+                    <Badge variant="warning">Inactive</Badge>
+                  )}
+                </TableCell>
+                <TableCell className="text-right">
+                  <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Link href={`/admin/students/${student.StudentID}`}>
+                      <Button variant="ghost" size="icon" className="size-8 text-muted-foreground hover:text-foreground">
+                        <Eye className="size-4" />
+                      </Button>
+                    </Link>
+                    <Link href={`/admin/students/${student.StudentID}/edit`}>
+                      <Button variant="ghost" size="icon" className="size-8 text-muted-foreground hover:text-foreground">
+                        <Pencil className="size-4" />
+                      </Button>
+                    </Link>
+                    <form action={deleteStudent}>
+                      <input type="hidden" name="studentId" value={student.StudentID} />
+                      <DeleteButton />
+                    </form>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </Card>
     </div>
   );
 }
-

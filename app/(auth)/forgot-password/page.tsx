@@ -1,6 +1,13 @@
 "use client";
 
 import React, { useState } from "react";
+import Link from "next/link";
+import { Button } from "@/app/components/ui/button";
+import { Input } from "@/app/components/ui/input";
+import { Label } from "@/app/components/ui/label";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/app/components/ui/card";
+import { ArrowLeft, Mail, KeyRound } from "lucide-react";
+import { toast } from "sonner";
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
@@ -11,7 +18,6 @@ const ForgotPassword = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
     try {
       setLoading(true);
       setError("");
@@ -26,130 +32,108 @@ const ForgotPassword = () => {
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data.error || "Something went wrong");
+        const errMsg = data.error || "Something went wrong";
+        setError(errMsg);
+        toast.error(errMsg);
         return;
       }
 
       setMessage(data.message);
       setIsSubmitted(true);
+      toast.success("Reset link sent! Check your email.");
     } catch (err) {
       setError("Server error. Please try again.");
+      toast.error("Server error. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-[#fafafa] font-sans flex items-center justify-center p-6">
-      {/* Google Fonts & Material Symbols */}
-      <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
-        rel="stylesheet"
-      />
-      <link
-        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700&display=swap"
-        rel="stylesheet"
-      />
-
+    <div className="min-h-screen bg-background font-sans flex items-center justify-center p-6">
       <main className="w-full max-w-[440px] flex flex-col items-center">
-        {/* Branding Icon */}
-        <div className="mb-5 p-4 bg-blue-100 rounded-2xl">
-          <span className="material-symbols-outlined text-blue-600 text-4xl block">
-            {isSubmitted ? "mail" : "lock_reset"}
-          </span>
+        {/* Icon */}
+        <div className="mb-5 p-4 bg-muted rounded-2xl">
+          {isSubmitted ? <Mail className="size-8 text-foreground" /> : <KeyRound className="size-8 text-foreground" />}
         </div>
 
-        {/* Focused Card */}
-        <div className="w-full bg-white rounded-2xl shadow-sm border border-[#f0f3f4] p-8 md:p-10">
-          {!isSubmitted ? (
-            <>
-              <div className="text-center mb-8">
-                <h1 className="text-[#111617] tracking-tight text-2xl md:text-3xl font-bold mb-3">
-                  Reset your password
-                </h1>
-                <p className="text-[#647e87] text-sm md:text-base leading-relaxed">
-                  Enter the email address associated with your account and we'll
-                  send you a link to reset your password.
-                </p>
-                {error && (
-                  <p className="text-red-500 text-sm mt-3 font-semibold text-center">
-                    {error}
-                  </p>
-                )}
-              </div>
-
-              <form className="space-y-6" onSubmit={handleSubmit}>
-                <div className="flex flex-col gap-2">
-                  <label
-                    className="text-[#111617] text-sm font-semibold"
-                    htmlFor="email"
-                  >
-                    Email Address
-                  </label>
-                  <input
-                    id="email"
-                    type="email"
-                    required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="e.g., student@university.edu"
-                    className="w-full rounded-xl border border-[#dce3e5] bg-white h-12 px-4 text-base focus:outline-none focus:ring-4 focus:ring-[#167b9c]/10 focus:border-[#167b9c] transition-all"
-                  />
+        <Card className="w-full">
+          <CardContent className="p-8 md:p-10">
+            {!isSubmitted ? (
+              <>
+                <div className="text-center mb-8">
+                  <CardTitle className="text-2xl md:text-3xl mb-3">
+                    Reset your password
+                  </CardTitle>
+                  <CardDescription className="text-sm md:text-base leading-relaxed">
+                    Enter the email address associated with your account and we'll
+                    send you a link to reset your password.
+                  </CardDescription>
+                  {error && (
+                    <p className="text-destructive text-sm mt-3 font-semibold">{error}</p>
+                  )}
                 </div>
 
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="w-full flex items-center justify-center rounded-xl h-12 bg-blue-600 text-white text-base font-bold shadow-lg disabled:opacity-50"
-                >
-                  {loading ? "Sending..." : "Send reset link"}
-                </button>
-              </form>
-            </>
-          ) : (
-            <div className="text-center">
-              <h2 className="text-[#111617] text-2xl font-bold mb-3">
-                Check your email
-              </h2>
-              <p className="text-[#647e87] text-sm md:text-base leading-relaxed mb-8">
-                We've sent a password reset link to <br />
-                <span className="font-semibold text-[#111617]">{email}</span>
-              </p>
-              <button
-                onClick={() => setIsSubmitted(false)}
-                className="w-full flex items-center justify-center rounded-xl h-12 border-2 border-[#f0f3f4] text-[#111617] text-sm font-bold hover:bg-gray-50 transition-all"
+                <form className="space-y-6" onSubmit={handleSubmit}>
+                  <div className="space-y-2">
+                    <Label htmlFor="email">Email Address</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      required
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="e.g., student@university.edu"
+                      className="h-12"
+                    />
+                  </div>
+
+                  <Button type="submit" disabled={loading} size="lg" className="w-full">
+                    {loading ? "Sending..." : "Send reset link"}
+                  </Button>
+                </form>
+              </>
+            ) : (
+              <div className="text-center">
+                <h2 className="text-foreground text-2xl font-bold mb-3">
+                  Check your email
+                </h2>
+                <p className="text-muted-foreground text-sm md:text-base leading-relaxed mb-8">
+                  We've sent a password reset link to <br />
+                  <span className="font-semibold text-foreground">{email}</span>
+                </p>
+                <Button variant="outline" size="lg" className="w-full" onClick={() => setIsSubmitted(false)}>
+                  Resend email
+                </Button>
+              </div>
+            )}
+
+            {/* Back to Login Link */}
+            <div className="mt-8 flex justify-center border-t border-border pt-6">
+              <Link
+                href="/login"
+                className="flex items-center gap-2 text-muted-foreground hover:text-foreground text-sm font-semibold transition-colors group"
               >
-                Resend email
-              </button>
+                <ArrowLeft size={16} className="transition-transform group-hover:-translate-x-1" />
+                Back to Login
+              </Link>
             </div>
-          )}
+          </CardContent>
+        </Card>
 
-          {/* Back to Login Link */}
-          <div className="mt-8 flex justify-center border-t border-[#f0f3f4] pt-6">
-            <a
-              href="/login"
-              className="flex items-center gap-2 text-blue-600 hover:text-blue-800 text-sm font-bold transition-colors group"
-            >
-              <span className="material-symbols-outlined text-sm transition-transform group-hover:-translate-x-1">
-                arrow_back
-              </span>
-              Back to Login
-            </a>
-          </div>
-        </div>
-        <p className="text-[#647e87] text-sm md:text-base leading-relaxed mb-8">
-        {message} <br />
-        <span className="font-semibold text-[#111617]">{email}</span>
-      </p>
+        {message && (
+          <p className="text-muted-foreground text-sm md:text-base leading-relaxed mt-4">
+            {message} <br />
+            <span className="font-semibold text-foreground">{email}</span>
+          </p>
+        )}
 
-        {/* Footer Info */}
         <div className="mt-10 text-center">
-          <p className="text-[10px] text-[#647e87] uppercase tracking-[0.2em] font-bold">
-            Mentorship Management Platform
+          <p className="text-[10px] text-muted-foreground uppercase tracking-[0.2em] font-bold">
+            Mentora Platform
           </p>
         </div>
       </main>
-      
     </div>
   );
 };

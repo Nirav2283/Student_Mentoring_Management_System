@@ -14,8 +14,9 @@ const AccountSuccess = () => {
       scale: 1,
       transition: { 
         duration: 0.5, 
-        ease: "easeOut",
-        staggerChildren: 0.2 
+        ease: "easeOut" as const,
+        staggerChildren: 0.2,
+        delayChildren: 0
       }
     }
   };
@@ -26,10 +27,10 @@ const AccountSuccess = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white flex flex-col font-sans relative overflow-hidden">
+    <div className="min-h-screen bg-card flex flex-col font-sans relative overflow-hidden">
       
       <div className="absolute top-6 right-10 z-20">
-        <button className="text-slate-400 hover:text-blue-600 transition-colors">
+        <button className="text-muted-foreground hover:text-foreground transition-colors">
           <HelpCircle size={24} />
         </button>
       </div>
@@ -41,7 +42,7 @@ const AccountSuccess = () => {
           variants={containerVariants}
           className="max-w-[520px] w-full"
         >
-          <div className="bg-white rounded-xl border border-slate-100 p-10 md:p-16 text-center shadow-sm">
+          <div className="bg-card rounded-xl border border-border p-10 md:p-16 text-center shadow-sm">
             
             {/* Animated Icon Section */}
             <div className="mb-10 flex justify-center">
@@ -85,10 +86,10 @@ const AccountSuccess = () => {
 
             {/* Success Message */}
             <motion.div variants={itemVariants} className="space-y-4 mb-10">
-              <h1 className="text-slate-900 text-3xl font-bold leading-tight tracking-tight px-4">
+              <h1 className="text-foreground text-3xl font-bold leading-tight tracking-tight px-4">
                 Your account has been created successfully!
               </h1>
-              <p className="text-slate-500 text-lg font-normal leading-relaxed px-4">
+              <p className="text-muted-foreground text-lg font-normal leading-relaxed px-4">
                 You will recieve a mail , please verify your email and after go to login
               </p>
             </motion.div>
@@ -97,12 +98,12 @@ const AccountSuccess = () => {
             <motion.div variants={itemVariants} className="flex flex-col gap-3 px-4">
               {/* <Link 
                 href="/login" 
-                className="w-full flex items-center justify-center rounded-lg h-14 px-8 bg-[#2656f2] text-white text-lg font-bold hover:bg-blue-700 transition-all shadow-lg shadow-blue-200 active:scale-[0.98]"
+                className="w-full flex items-center justify-center rounded-lg h-14 px-8 bg-[#2656f2] text-white text-lg font-bold hover:bg-primary/90 transition-all shadow-lg shadow-primary/10 active:scale-[0.98]"
               >
                 Go to Login
               </Link> */}
               
-              <p className="text-sm text-slate-400 mt-4">
+              <p className="text-sm text-muted-foreground mt-4">
                 Need help? <a className="text-[#2656f2] hover:underline" href="#">Contact Support</a>
               </p>
             </motion.div>
@@ -111,13 +112,13 @@ const AccountSuccess = () => {
       </main>
 
       {/* Footer */}
-      <footer className="flex flex-col gap-6 px-5 py-10 text-center bg-white border-t border-slate-100 relative z-10">
+      <footer className="flex flex-col gap-6 px-5 py-10 text-center bg-card border-t border-border relative z-10">
         <div className="flex flex-wrap items-center justify-center gap-8">
-          <a className="text-slate-500 text-sm font-medium hover:text-[#2656f2] transition-colors" href="#">Terms of Service</a>
-          <a className="text-slate-500 text-sm font-medium hover:text-[#2656f2] transition-colors" href="#">Privacy Policy</a>
-          <a className="text-slate-500 text-sm font-medium hover:text-[#2656f2] transition-colors" href="#">System Status</a>
+          <a className="text-muted-foreground text-sm font-medium hover:text-[#2656f2] transition-colors" href="#">Terms of Service</a>
+          <a className="text-muted-foreground text-sm font-medium hover:text-[#2656f2] transition-colors" href="#">Privacy Policy</a>
+          <a className="text-muted-foreground text-sm font-medium hover:text-[#2656f2] transition-colors" href="#">System Status</a>
         </div>
-        <p className="text-slate-400 text-sm">
+        <p className="text-muted-foreground text-sm">
           © {new Date().getFullYear()} Mentorship Management System. All rights reserved.
         </p>
       </footer>

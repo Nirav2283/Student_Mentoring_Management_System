@@ -1,156 +1,140 @@
 import React from 'react';
 import Link from 'next/link';
-import Head from 'next/head';
 import { prisma } from '@/app/lib/prisma';
 import { getSessionUser } from '@/app/lib/auth';
+import { Search, Filter, ChevronLeft, ChevronRight, Eye } from 'lucide-react';
+import { Card, CardContent } from '@/app/components/ui/card';
+import { Badge } from '@/app/components/ui/badge';
+import { Avatar, AvatarFallback } from '@/app/components/ui/avatar';
+import { Button } from '@/app/components/ui/button';
+import { Input } from '@/app/components/ui/input';
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/app/components/ui/table';
 
-// Updated Sample Data to match your original mentor-specific list
 export default async function StudentListPage() {
-  const session = await getSessionUser()
+  const session = await getSessionUser();
 
   const mentor = await prisma.mentor.findFirst({
-    where:{
-      UserID:session?.UserID
-    }
-  })
+    where: { UserID: session?.UserID },
+  });
 
   const assignedStudents = await prisma.studentmentor.findMany({
-    where:{
-      MentorID:mentor?.MentorID
+    where: {
+      MentorID: mentor?.MentorID,
+      OR: [{ ToDate: null }, { ToDate: { gt: new Date() } }],
     },
-    include:{
-      student:true
-    }
-  })
+    include: { student: true },
+  });
+
   const getInitials = (name: string) => {
-  if (!name) return "S";
-  return name
-    .split(" ")
-    .map((word) => word.charAt(0))
-    .join("")
-    .toUpperCase();
-};
+    if (!name) return "S";
+    return name.split(" ").map((word) => word.charAt(0)).join("").toUpperCase();
+  };
 
   const students = assignedStudents.map((item) => item.student);
-  return (
-    <div className="min-h-screen bg-slate-50/50 p-8 font-sans animate-fade-in">
-      <Head>
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet" />
-        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@300&display=swap" rel="stylesheet" />
-      </Head>
 
+  return (
+    <div className="min-h-screen p-8 animate-fade-in">
       <div className="max-w-6xl mx-auto space-y-6">
         {/* Page Heading */}
         <header className="flex items-end justify-between mb-2">
           <div>
-            <h1 className="text-3xl font-black tracking-tight text-slate-900">My Students</h1>
-            <p className="text-slate-500 mt-1">Manage and monitor your {students.length} assigned students</p>
+            <h1 className="text-3xl font-black tracking-tight text-foreground">My Students</h1>
+            <p className="text-muted-foreground mt-1">Manage and monitor your {students.length} assigned students</p>
           </div>
-          <div className="bg-[#135bec]/10 px-4 py-2 rounded-lg border border-[#135bec]/20">
-            <span className="text-[#135bec] font-bold">{students.length}</span>
-            <span className="text-[#135bec]/70 text-sm ml-1 font-medium">Total Active</span>
-          </div>
+          <Badge variant="secondary" className="text-sm px-4 py-2">
+            <span className="text-primary font-bold">{students.length}</span>
+            <span className="text-muted-foreground ml-1">Total Active</span>
+          </Badge>
         </header>
 
-        {/* Top Search and Actions Bar - Themed */}
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
-          <div className="flex flex-col sm:flex-row gap-3 flex-1">
-            <div className="relative flex-1 min-w-[240px]">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-slate-400 text-xl">search</span>
-              <input 
-                className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-gray-200 bg-slate-50 text-sm focus:ring-2 focus:ring-[#135bec]/20 focus:border-[#135bec] transition-all outline-none" 
-                placeholder="Search by name or enrollment number..." 
-                type="text"
-              />
-            </div>
-            <div className="flex gap-3">
-              <select className="px-3 py-2.5 rounded-lg border border-gray-200 bg-white text-sm text-slate-600 focus:ring-2 focus:ring-[#135bec]/20 outline-none cursor-pointer">
+        {/* Search and Actions Bar */}
+        <Card>
+          <CardContent className="p-4 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+            <div className="flex flex-col sm:flex-row gap-3 flex-1">
+              <div className="relative flex-1 min-w-[240px]">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+                <Input 
+                  className="pl-10" 
+                  placeholder="Search by name or enrollment number..." 
+                  type="text"
+                />
+              </div>
+              <select className="px-3 py-2.5 rounded-lg border border-border bg-card text-sm text-muted-foreground focus:ring-2 focus:ring-ring outline-none cursor-pointer">
                 <option value="">All Departments</option>
                 <option value="cs">Computer Science</option>
                 <option value="me">Mechanical Eng</option>
               </select>
             </div>
-          </div>
-          
-          <div className="flex items-center gap-3">
-            <button className="flex items-center justify-center size-11 rounded-lg border border-gray-200 bg-white text-slate-500 hover:text-[#135bec] hover:bg-slate-50 transition-all">
-              <span className="material-symbols-outlined">filter_list</span>
-            </button>
-            <button className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-[#135bec] hover:bg-blue-700 text-white transition-all text-sm font-bold shadow-md shadow-[#135bec]/25">
-              <span className="material-symbols-outlined text-[20px]">add</span>
-              <span>Enroll Student</span>
-            </button>
-          </div>
-        </div>
+            <Button variant="outline" size="icon">
+              <Filter className="size-4" />
+            </Button>
+          </CardContent>
+        </Card>
 
-        {/* Student Table Container */}
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-slate-50">
-                <tr>
-                  <th className="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Student Name</th>
-                  <th className="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Enrollment Number</th>
-                  <th className="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Department</th>
-                  <th className="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Current Semester</th>
-                  <th className="px-6 py-4 text-right text-xs font-bold text-slate-500 uppercase tracking-wider">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100">
-                {students.map((student) => (
-                  <tr key={student.StudentID} className="hover:bg-slate-50/80 transition-colors group">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center gap-4">
-                        <div className="size-9 rounded-full bg-blue-50 text-[#135bec] flex items-center justify-center font-bold text-xs border border-blue-100">
+        {/* Student Table */}
+        <Card>
+          <Table>
+            <TableHeader>
+              <TableRow className="bg-muted">
+                <TableHead>Student Name</TableHead>
+                <TableHead>Enrollment Number</TableHead>
+                <TableHead>Department</TableHead>
+                <TableHead>Current Semester</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {students.map((student) => (
+                <TableRow key={student.StudentID} className="group">
+                  <TableCell>
+                    <div className="flex items-center gap-4">
+                      <Avatar className="size-9">
+                        <AvatarFallback className="text-xs font-bold">
                           {getInitials(student.StudentName)}
-                        </div>
-                        <div className="text-sm font-bold text-slate-900">{student.StudentName}</div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500 font-mono">
-                      {student.EnrollmentNo}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-slate-100 text-slate-700 border border-slate-200">
-                        {student.Department}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600 font-medium">
-                      {student.CurrentSem}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right">
-                      <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <Link href={`/mentor/students/${student.StudentID}`}>
-                        <button className="p-2 text-slate-400 hover:text-[#135bec] hover:bg-blue-50 rounded-lg transition-colors" title="View Details">
-                          <span className="material-symbols-outlined text-[20px]">visibility</span>
-                        </button>
-                        </Link>
-                    
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                        </AvatarFallback>
+                      </Avatar>
+                      <span className="text-sm font-bold text-foreground">{student.StudentName}</span>
+                    </div>
+                  </TableCell>
+                  <TableCell className="font-mono text-muted-foreground">
+                    {student.EnrollmentNo}
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant="outline">{student.Department}</Badge>
+                  </TableCell>
+                  <TableCell className="text-muted-foreground font-medium">
+                    {student.CurrentSem}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <Link href={`/mentor/students/${student.StudentID}`}>
+                        <Button variant="ghost" size="icon" title="View Details">
+                          <Eye className="size-4" />
+                        </Button>
+                      </Link>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
 
           {/* Pagination */}
-          <div className="px-6 py-4 bg-white border-t border-gray-100 flex items-center justify-between">
-            <p className="text-sm text-slate-500 font-medium">
-              Showing <span className="text-slate-900">1</span> to <span className="text-slate-900">5</span> of <span className="text-slate-900">{students.length}</span> students
+          <div className="px-6 py-4 border-t border-border flex items-center justify-between">
+            <p className="text-sm text-muted-foreground font-medium">
+              Showing <span className="text-foreground">1</span> to <span className="text-foreground">{students.length}</span> of <span className="text-foreground">{students.length}</span> students
             </p>
             <div className="flex gap-1">
-              <button className="p-2 border border-gray-200 rounded-lg text-slate-400 hover:bg-slate-50 transition-colors disabled:opacity-30" disabled>
-                <span className="material-symbols-outlined text-sm">chevron_left</span>
-              </button>
-              <button className="px-3.5 py-1 border border-[#135bec] bg-blue-50 text-[#135bec] rounded-lg font-bold text-sm">1</button>
-              <button className="px-3.5 py-1 border border-gray-200 rounded-lg text-slate-600 hover:bg-slate-50 font-medium text-sm transition-colors">2</button>
-              <button className="p-2 border border-gray-200 rounded-lg text-slate-400 hover:bg-slate-50 transition-colors">
-                <span className="material-symbols-outlined text-sm">chevron_right</span>
-              </button>
+              <Button variant="outline" size="icon" className="size-9" disabled>
+                <ChevronLeft className="size-4" />
+              </Button>
+              <Button variant="outline" size="sm" className="border-primary text-primary bg-muted font-bold">1</Button>
+              <Button variant="outline" size="icon" className="size-9">
+                <ChevronRight className="size-4" />
+              </Button>
             </div>
           </div>
-        </div>
+        </Card>
       </div>
     </div>
   );

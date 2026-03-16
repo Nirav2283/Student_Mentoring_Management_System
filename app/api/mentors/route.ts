@@ -90,6 +90,7 @@ export async function POST(req: Request) {
     } catch (mailError) {
       console.error("Email service failed:", mailError);
     }
+    console.log(":::::::::PASSWORD MENtorr:::::::::" , password)
 
     revalidatePath("/admin/mentors");
     revalidatePath("/admin/dashboard");

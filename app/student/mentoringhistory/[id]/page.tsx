@@ -1,268 +1,208 @@
-"use client";
-
 import React from "react";
 import Link from "next/link";
-export default function MentoringSessionDetail() {
-  return (
-    <div className="min-h-scree p-4 md:p-8 animate-fade-in font-sans">
-      <div className="max-w-5xl mx-auto space-y-6">
-        {/* Top Actions & Back Button */}
-        <div className="flex items-center justify-between">
-          <Link href={"/student/mentoringhistory"}>
-            <button className="flex items-center gap-2 text-[#135bec] hover:text-blue-700 font-bold text-sm transition-colors group">
-              <span className="material-symbols-outlined text-xl group-hover:-translate-x-1 transition-transform">
-                arrow_back
-              </span>
-              Back to History
-            </button>
-          </Link>
+import { prisma } from "@/app/lib/prisma";
+import { ArrowLeft, Calendar, UserCheck, UserX, Rocket, FileText, MessageCircle, Clock } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/app/components/ui/card";
+import { Badge } from "@/app/components/ui/badge";
+import { Button } from "@/app/components/ui/button";
 
-          <button className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm font-bold text-slate-600 hover:shadow-md transition-all">
-            <span className="material-symbols-outlined text-lg">print</span>
-            Print Record
-          </button>
+export default async function MentoringSessionDetail({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+  const sessionId = parseInt(id);
+
+  if (isNaN(sessionId)) {
+    return <div>Invalid Session ID</div>;
+  }
+
+  const session = await prisma.studentmentoring.findUnique({
+    where: { StudentMentoringID: sessionId },
+    include: { studentmentor: { include: { student: true, mentor: true } } },
+  });
+
+  if (!session) {
+    return (
+      <div className="min-h-screen p-4 md:p-8 flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <h2 className="text-2xl font-bold text-foreground">Session Not Found</h2>
+          <p className="text-muted-foreground">The mentoring session you are looking for does not exist.</p>
+          <Link href="/student/mentoringhistory">
+            <Button>Back to History</Button>
+          </Link>
         </div>
+      </div>
+    );
+  }
+
+  const studentName = session.studentmentor.student.StudentName;
+  const enrollmentNo = session.studentmentor.student.EnrollmentNo;
+  const isCompleted = new Date() > new Date(session.DateOfMentoring || new Date());
+
+  const formatDate = (date: Date | null) => {
+    if (!date) return "TBA";
+    return new Date(date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+  };
+
+  return (
+    <div className="min-h-screen p-4 md:p-8 animate-fade-in">
+      <div className="max-w-5xl mx-auto space-y-6">
+        {/* Back */}
+        <Link href="/student/mentoringhistory">
+          <Button variant="ghost" className="gap-2 text-primary hover:text-primary/90 font-bold text-sm group">
+            <ArrowLeft className="size-4 group-hover:-translate-x-1 transition-transform" />
+            Back to History
+          </Button>
+        </Link>
 
         {/* Hero Section */}
-        <div className="bg-white p-6 md:p-8 rounded-2xl border border-gray-200 shadow-sm">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div className="space-y-2">
-              <div className="flex items-center gap-3 flex-wrap">
-                <h1 className="text-slate-900 text-3xl font-black tracking-tight">
-                  Session Details: Alex Johnson
-                </h1>
-                <span className="px-3 py-1 bg-blue-50 text-[#135bec] text-[11px] font-bold rounded-full uppercase tracking-wider border border-blue-100">
-                  Completed
-                </span>
-              </div>
-              <p className="text-slate-500 text-sm font-medium">
-                Student ID:{" "}
-                <span className="text-[#135bec] font-bold">STU-882910</span> •
-                Last updated 2 hours ago by Sarah Miller
-              </p>
-            </div>
-          </div>
-
-          {/* Quick Stats Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mt-8 pt-8 border-t border-gray-100">
-            <div className="flex items-center gap-4">
-              <div className="size-12 rounded-xl bg-slate-50 text-slate-400 flex items-center justify-center">
-                <span className="material-symbols-outlined">
-                  calendar_today
-                </span>
-              </div>
-              <div>
-                <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">
-                  Date
+        <Card>
+          <CardContent className="p-6 md:p-8">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div className="space-y-2">
+                <div className="flex items-center gap-3 flex-wrap">
+                  <h1 className="text-foreground text-3xl font-black tracking-tight">
+                    Session Details: {studentName}
+                  </h1>
+                  <Badge variant={isCompleted ? "secondary" : "outline"}
+                    className={isCompleted ? "bg-muted text-primary" : "bg-emerald-50 text-emerald-600 border-emerald-100"}>
+                    {isCompleted ? "Completed" : "Upcoming"}
+                  </Badge>
+                </div>
+                <p className="text-muted-foreground text-sm font-medium">
+                  Enrollment No: <span className="text-primary font-bold">{enrollmentNo}</span> •
+                  Mentor: {session.studentmentor.mentor.MentorName}
                 </p>
-                <p className="text-lg font-bold text-slate-900">Oct 24, 2023</p>
               </div>
             </div>
 
-            <div className="flex items-center gap-4">
-              <div className="size-12 rounded-xl bg-emerald-50 text-emerald-500 flex items-center justify-center">
-                <span className="material-symbols-outlined">how_to_reg</span>
+            {/* Quick Stats Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mt-8 pt-8 border-t border-border">
+              <div className="flex items-center gap-4">
+                <div className="size-12 rounded-xl bg-muted text-muted-foreground flex items-center justify-center">
+                  <Calendar className="size-5" />
+                </div>
+                <div>
+                  <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest">Date</p>
+                  <p className="text-lg font-bold text-foreground">{formatDate(session.DateOfMentoring)}</p>
+                </div>
               </div>
-              <div>
-                <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">
-                  Attendance
-                </p>
-                <div className="flex items-center gap-2">
-                  <div className="size-2 rounded-full bg-emerald-500"></div>
-                  <p className="text-lg font-bold text-slate-900">Present</p>
+
+              <div className="flex items-center gap-4">
+                <div className={`size-12 rounded-xl flex items-center justify-center ${session.AttendanceStatus === 'PRESENT' ? 'bg-emerald-50 text-emerald-500' : 'bg-red-50 text-red-500'}`}>
+                  {session.AttendanceStatus === 'PRESENT' ? <UserCheck className="size-5" /> : <UserX className="size-5" />}
+                </div>
+                <div>
+                  <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest">Attendance</p>
+                  <div className="flex items-center gap-2">
+                    <div className={`size-2 rounded-full ${session.AttendanceStatus === 'PRESENT' ? 'bg-emerald-500' : 'bg-red-500'}`}></div>
+                    <p className="text-lg font-bold text-foreground capitalize">{session.AttendanceStatus?.toLowerCase() || 'Pending'}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-4">
+                <div className="size-12 rounded-xl bg-amber-50 text-amber-500 flex items-center justify-center">
+                  <Rocket className="size-5" />
+                </div>
+                <div>
+                  <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest">Learner Type</p>
+                  <p className="text-lg font-bold text-foreground capitalize">{session.LearnerType?.toLowerCase() || 'N/A'}</p>
                 </div>
               </div>
             </div>
-
-            <div className="flex items-center gap-4">
-              <div className="size-12 rounded-xl bg-amber-50 text-amber-500 flex items-center justify-center">
-                <span className="material-symbols-outlined">rocket_launch</span>
-              </div>
-              <div>
-                <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">
-                  Learner Type
-                </p>
-                <p className="text-lg font-bold text-slate-900">Fast Learner</p>
-              </div>
-            </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Main Content Area */}
+          {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Overview Section */}
-            <section className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
-              <div className="px-6 py-4 border-b border-gray-100 flex items-center gap-2 bg-slate-50/50">
-                <span className="material-symbols-outlined text-[#135bec]">
-                  description
-                </span>
-                <h3 className="font-bold text-slate-800">Session Overview</h3>
-              </div>
-              <div className="p-6 space-y-6">
+            {/* Overview */}
+            <Card>
+              <CardHeader className="bg-muted/50 flex-row items-center gap-2">
+                <FileText className="size-5 text-primary" />
+                <CardTitle>Session Overview</CardTitle>
+              </CardHeader>
+              <CardContent className="p-6 space-y-6">
                 <div>
-                  <h4 className="text-[11px] font-black text-[#135bec] uppercase tracking-wider mb-2">
-                    Agenda
-                  </h4>
-                  <p className="text-slate-800 text-lg font-semibold leading-snug">
-                    Review of midterm results and adjustment of study plan for
-                    Calculus II.
+                  <h4 className="text-[11px] font-black text-primary uppercase tracking-wider mb-2">Agenda</h4>
+                  <p className="text-foreground text-lg font-semibold leading-snug">
+                    {session.MentoringMeetingAgenda || "No agenda provided."}
                   </p>
                 </div>
-
-                <div className="pt-6 border-t border-gray-100">
-                  <h4 className="text-[11px] font-black text-[#135bec] uppercase tracking-wider mb-4">
-                    Detailed Issues Discussed
-                  </h4>
-                  <div className="text-slate-600 text-sm leading-relaxed space-y-4 font-medium">
-                    <p>
-                      Alex expressed concern about the pacing of the advanced
-                      mathematics module. Specifically, we looked at the last
-                      three assignments where partial credit was lost due to
-                      notation errors rather than conceptual misunderstanding.
-                    </p>
-                    <p>
-                      We discussed time management during exams. Alex mentioned
-                      feeling "rushed" during the 50-minute blocks, leading to
-                      anxiety spikes. We mapped out a plan to use the first 5
-                      minutes purely for reading the entire paper before
-                      starting.
-                    </p>
+                <div className="pt-6 border-t border-border">
+                  <h4 className="text-[11px] font-black text-primary uppercase tracking-wider mb-4">Detailed Issues Discussed</h4>
+                  <div className="text-muted-foreground text-sm leading-relaxed space-y-4 font-medium whitespace-pre-wrap">
+                    {session.IssuesDiscussed || "No discussion details provided."}
                   </div>
                 </div>
-              </div>
-            </section>
+              </CardContent>
+            </Card>
 
-            {/* Mentor Insight Section */}
-            <section className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
-              <div className="px-6 py-4 border-b border-gray-100 flex items-center gap-2 bg-slate-50/50">
-                <span className="material-symbols-outlined text-[#135bec]">
-                  rate_review
-                </span>
-                <h3 className="font-bold text-slate-800">Mentor Insights</h3>
-              </div>
-              <div className="p-6">
-                <h4 className="text-[11px] font-black text-[#135bec] uppercase tracking-wider mb-3">
+            {/* Mentor Insight */}
+            <Card>
+              <CardHeader className="bg-muted/50 flex-row items-center gap-2">
+                <MessageCircle className="size-5 text-primary" />
+                <CardTitle>Mentor Insights</CardTitle>
+              </CardHeader>
+              <CardContent className="p-6">
+                <h4 className="text-[11px] font-black text-primary uppercase tracking-wider mb-3">
                   Staff Opinion & Remarks
                 </h4>
-                <div className="p-5 bg-blue-50/30 rounded-xl border-l-4 border-[#135bec]">
-                  <p className="text-sm text-slate-700 italic font-medium leading-relaxed">
-                    "Alex is showing great maturity. While the academic pressure
-                    is mounting, his willingness to seek help early is a strong
-                    indicator of success. I recommend he continues the current
-                    trajectory but keeps an eye on his extracurricular workload
-                    to prevent burnout."
+                <div className="p-5 bg-muted rounded-xl border-l-4 border-primary">
+                  <p className="text-sm text-foreground italic font-medium leading-relaxed">
+                    {session.StaffOpinion ? `"${session.StaffOpinion}"` : "No remarks provided."}
                   </p>
                 </div>
-              </div>
-            </section>
+              </CardContent>
+            </Card>
           </div>
 
-          {/* Sidebar Area */}
+          {/* Sidebar */}
           <div className="space-y-6">
-            {/* Stress Level Card */}
-            <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
-              <h3 className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-6">
-                Student State
-              </h3>
-              <div className="space-y-4">
-                <div>
-                  <div className="flex justify-between items-center mb-2">
-                    <p className="text-xs font-bold text-slate-700">
-                      Stress Level
-                    </p>
-                    <span className="text-[10px] font-black text-amber-600 uppercase bg-amber-50 px-2 py-0.5 rounded-md">
-                      Moderate
-                    </span>
-                  </div>
-                  <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-amber-400 rounded-full"
-                      style={{ width: "45%" }}
-                    ></div>
-                  </div>
-                </div>
-                {/* <p className="text-[11px] text-slate-500 font-medium leading-relaxed">
-                  Student feels confident but slightly overwhelmed by upcoming deadlines in Calculus.
-                </p> */}
-              </div>
-            </div>
-
-            {/* Next Session Action Card */}
-            <div className="bg-[#135bec] p-6 rounded-2xl text-white shadow-lg shadow-blue-200 relative overflow-hidden">
-              <span className="material-symbols-outlined absolute -right-2 -top-2 text-7xl opacity-10 rotate-12">
-                event_upcoming
-              </span>
-              <h3 className="text-[10px] font-black uppercase tracking-widest mb-6 opacity-80">
-                Follow-up Session
-              </h3>
-              <div className="space-y-1">
-                <p className="text-xs opacity-80">Next Date</p>
-                <p className="text-2xl font-black">Nov 12, 2023</p>
-                <p className="text-[11px] font-bold flex items-center gap-1 opacity-90 pt-2">
-                  <span className="material-symbols-outlined text-sm">
-                    alarm
-                  </span>
-                  10:30 AM
-                </p>
-              </div>
-              {/* <button className="w-full mt-6 py-2.5 bg-white text-[#135bec] text-xs font-black uppercase tracking-widest rounded-xl hover:bg-slate-50 transition-colors shadow-sm">
-                Reschedule
-              </button> */}
-            </div>
-
-            {/* Attachments Card */}
-            <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
-              <h3 className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-4">
-                Support Assets
-              </h3>
-              <div className="space-y-3">
-                {[
-                  {
-                    name: "Midterm_Report.pdf",
-                    size: "2.4 MB",
-                    icon: "picture_as_pdf",
-                    color: "text-red-500",
-                    bg: "bg-red-50",
-                  },
-                  {
-                    name: "Study_Plan_v2.docx",
-                    size: "1.1 MB",
-                    icon: "description",
-                    color: "text-blue-500",
-                    bg: "bg-blue-50",
-                  },
-                ].map((file, i) => (
-                  <div
-                    key={i}
-                    className="flex items-center gap-3 p-3 hover:bg-slate-50 rounded-xl cursor-pointer transition-colors group border border-transparent hover:border-slate-100"
-                  >
-                    <div
-                      className={`size-10 ${file.bg} ${file.color} rounded-lg flex items-center justify-center`}
-                    >
-                      <span className="material-symbols-outlined">
-                        {file.icon}
+            {/* Stress Level */}
+            <Card>
+              <CardContent className="p-6">
+                <h3 className="text-[11px] font-black text-muted-foreground uppercase tracking-widest mb-6">Student State</h3>
+                <div className="space-y-4">
+                  <div>
+                    <div className="flex justify-between items-center mb-2">
+                      <p className="text-xs font-bold text-foreground">Stress Level</p>
+                      <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-md ${
+                        session.StressLevel === 'HIGH' ? 'text-red-600 bg-red-50' :
+                        session.StressLevel === 'MEDIUM' ? 'text-amber-600 bg-amber-50' :
+                        session.StressLevel === 'LOW' ? 'text-emerald-600 bg-emerald-50' :
+                        'text-muted-foreground bg-muted'
+                      }`}>
+                        {session.StressLevel || 'N/A'}
                       </span>
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs font-bold text-slate-800 truncate">
-                        {file.name}
-                      </p>
-                      <p className="text-[10px] text-slate-400 font-bold uppercase">
-                        {file.size}
-                      </p>
+                    <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
+                      <div className={`h-full rounded-full ${
+                        session.StressLevel === 'HIGH' ? 'bg-red-500 w-[85%]' :
+                        session.StressLevel === 'MEDIUM' ? 'bg-amber-400 w-[50%]' :
+                        session.StressLevel === 'LOW' ? 'bg-emerald-400 w-[15%]' :
+                        'bg-muted-foreground/30 w-0'
+                      }`}></div>
                     </div>
-                    <span className="material-symbols-outlined text-slate-300 group-hover:text-[#135bec] transition-colors">
-                      download
-                    </span>
                   </div>
-                ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Next Session */}
+            <div className="bg-primary p-6 rounded-2xl text-primary-foreground shadow-lg relative overflow-hidden">
+              <Clock className="absolute -right-2 -top-2 size-16 opacity-10 rotate-12" />
+              <h3 className="text-[10px] font-black uppercase tracking-widest mb-6 opacity-80">Follow-up Session</h3>
+              <div className="space-y-1">
+                <p className="text-xs opacity-80">Next Date</p>
+                <p className="text-2xl font-black">{formatDate(session.NextMentoringDate)}</p>
               </div>
             </div>
           </div>
         </div>
-
-        {/* Footer */}
       </div>
     </div>
   );

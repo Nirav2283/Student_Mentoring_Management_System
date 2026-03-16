@@ -124,13 +124,16 @@ export async function DELETE(req: Request) {
       );
     }
 
-    await prisma.studentmentor.delete({
+    await prisma.studentmentor.update({
       where: {
         StudentMentorID: Number(studentMentorId),
       },
+      data: {
+        ToDate: new Date(),
+      }
     });
 
-    return NextResponse.json({ message: "Deleted successfully" });
+    return NextResponse.json({ message: "Mentorship ended successfully" });
 
   } catch (error) {
     console.log("DELETE ERROR:", error);

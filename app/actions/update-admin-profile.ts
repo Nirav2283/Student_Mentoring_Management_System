@@ -16,8 +16,8 @@ export type State = {
         email?: string[];
         _form?: string[];
     };
-    message?: string | null;
-    success?: boolean;
+    message: string;
+    success: boolean;
 };
 
 export async function updateAdminProfile(prevState: State, formData: FormData) {

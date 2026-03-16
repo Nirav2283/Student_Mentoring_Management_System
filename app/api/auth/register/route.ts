@@ -22,8 +22,13 @@ export async function POST(req: Request) {
     const body = await req.json();
     const validated = CollegeSchema.safeParse(body);
     if (!validated.success) {
+      // Flatten Zod errors into a readable string for the UI
+      const fieldErrors = validated.error.flatten().fieldErrors;
+      const messages = Object.entries(fieldErrors)
+        .map(([field, errs]) => `${field}: ${(errs as string[]).join(", ")}`)
+        .join("; ");
       return NextResponse.json(
-        { error: validated.error.flatten().fieldErrors },
+        { error: messages || "Validation failed" },
         { status: 400 }
       );
     }
@@ -37,8 +42,12 @@ export async function POST(req: Request) {
     });
 
     if (exists) {
+      // Tell the user exactly what's duplicated
+      const reasons = [];
+      if (exists.Email === Email) reasons.push("This email is already registered");
+      if (exists.CollegeCode === CollegeCode) reasons.push("This institution code is already in use");
       return NextResponse.json(
-        { error: "College already registered" },
+        { error: reasons.join(". ") || "College already registered" },
         { status: 409 }
       );
     }

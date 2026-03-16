@@ -2,6 +2,7 @@
 import AddStudentMentor from "@/app/ui/AddStudentMentor";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { toast } from "sonner";
 
 export default function AddStudentPage() {
   const router = useRouter();
@@ -65,14 +66,16 @@ export default function AddStudentPage() {
       const data = await res.json();
 
       if (data.success) {
+        toast.success("Student added successfully!");
         router.refresh();
         router.push('/admin/students');
       } else {
-        console.error(data.message);
+        toast.error(data.message || "Failed to add student.");
         setLoading(false);
       }
     } catch (err) {
       console.error(err);
+      toast.error("An unexpected error occurred. Please try again.");
       setLoading(false);
     }
   };

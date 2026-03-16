@@ -1,4 +1,6 @@
-import nodemailer from 'nodemailer'
+import nodemailer from "nodemailer";
+import { mentoraEmailTemplate, mentoraButton } from "./emailTemplate";
+
 export const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
@@ -8,46 +10,49 @@ export const transporter = nodemailer.createTransport({
 });
 
 export const sendResetEmail = async (email: string, link: string) => {
-  await transporter.sendMail({
-    from: `"Mentorship System" <${process.env.EMAIL_USER}>`,
-    to: email,
-    subject: "Reset your password",
-    html: `
-    <div style="font-family: sans-serif; background-color: #f9f9f9; padding: 40px 0; width: 100%;">
-      <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border: 1px solid #e1e1e1;">
-        
-        <div style="background-color: #2563eb; padding: 20px; text-align: center;">
-          <h1 style="color: #ffffff; margin: 0; font-size: 24px;">SMMS Support</h1>
-        </div>
+  const htmlContent = mentoraEmailTemplate({
+    preheader: "You requested a password reset for your Mentora account.",
+    body: `
+      <!-- Accent Bar -->
+      <div style="height:4px; background:linear-gradient(90deg, #f5c518 0%, #f59e0b 100%);"></div>
 
-        <div style="padding: 30px; color: #333333; line-height: 1.6;">
-          <h2 style="margin-top: 0; color: #111827;">Password Reset Request</h2>
-          <p>We received a request to reset your password. If you didn't make this request, you can safely ignore this email.</p>
-          
-          <div style="text-align: center; margin: 30px 0;">
-            <a href="${link}" style="background-color: #2563eb; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">
-              Reset My Password
-            </a>
+      <div style="padding:40px 36px;">
+        <!-- Lock Icon -->
+        <div style="text-align:center; margin-bottom:28px;">
+          <div style="display:inline-block; width:64px; height:64px; border-radius:50%; background-color:#fefce8; border:2px solid #fde68a; line-height:64px; text-align:center;">
+            <span style="font-size:28px;">🔒</span>
           </div>
-
-          <p style="font-size: 14px; color: #6b7280;">
-            The button above will expire in <strong>15 minutes</strong>.
-          </p>
-          
-          <hr style="border: none; border-top: 1px solid #eeeeee; margin: 25px 0;" />
-          
-          <p style="font-size: 12px; color: #9ca3af;">
-            If you're having trouble clicking the button, copy and paste the URL below into your web browser:
-            <br />
-            <span style="word-break: break-all; color: #2563eb;">${link}</span>
-          </p>
         </div>
 
-        <div style="background-color: #f3f4f6; padding: 15px; text-align: center; font-size: 12px; color: #6b7280;">
-          © ${new Date().getFullYear()} SMMS. All rights reserved.
-        </div>
+        <h1 style="margin:0 0 8px; font-size:24px; font-weight:800; color:#1a1a1a; text-align:center; font-family:'Segoe UI',Arial,sans-serif;">
+          Password Reset Request
+        </h1>
+        <p style="margin:0 0 28px; font-size:15px; color:#6b7280; text-align:center; line-height:1.6; font-family:'Segoe UI',Arial,sans-serif;">
+          We received a request to reset your password. If you didn't make this request, you can safely ignore this email.
+        </p>
+
+        ${mentoraButton(link, "Reset My Password →")}
+
+        <p style="margin:24px 0 0; font-size:13px; color:#9ca3af; text-align:center; font-family:'Segoe UI',Arial,sans-serif;">
+          This link will expire in <strong style="color:#6b7280;">15 minutes</strong>.
+        </p>
+
+        <!-- Divider -->
+        <div style="border-top:1px solid #f0ede6; margin:28px 0;"></div>
+
+        <!-- Fallback Link -->
+        <p style="margin:0; font-size:11px; color:#b5b3ab; text-align:center; word-break:break-all; font-family:'Segoe UI',Arial,sans-serif;">
+          If the button doesn't work, copy this link:<br>
+          <a href="${link}" style="color:#d97706;">${link}</a>
+        </p>
       </div>
-    </div>
     `,
+  });
+
+  await transporter.sendMail({
+    from: `"Mentora" <${process.env.EMAIL_USER}>`,
+    to: email,
+    subject: "Reset Your Mentora Password",
+    html: htmlContent,
   });
 };

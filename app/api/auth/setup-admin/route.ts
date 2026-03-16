@@ -37,6 +37,16 @@ export async function POST(req: Request) {
       );
     }
 
+    const existingEmail = await prisma.users.findUnique({
+      where: { Email },
+    });
+    if (existingEmail) {
+      return NextResponse.json(
+        { error: "This email is already registered. Please use a different email." },
+        { status: 409 },
+      );
+    }
+
     const PasswordHash = await bcrypt.hashSync(Password, 10);
 
     const verifyToken = crypto.randomBytes(32).toString("hex");

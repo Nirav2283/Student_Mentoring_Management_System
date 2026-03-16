@@ -2,6 +2,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import AddStudentMentor from "@/app/ui/AddStudentMentor";
+import { toast } from "sonner";
 export default function AddMentorPage() {
   const router = useRouter();
   const [errors, setErrors] = useState<string[]>([]);
@@ -97,12 +98,16 @@ export default function AddMentorPage() {
       const data = await res.json();
 
       if (!res.ok) {
+        toast.error(data.message || "Failed to add mentor.");
         setErrors([data.message || "Failed to add mentor"]);
         return;
       }
 
+      toast.success("Mentor added successfully!");
       router.push("/admin/mentors");
     } catch (err) {
+      console.error(err);
+      toast.error("Something went wrong. Please try again.");
       setErrors(["Something went wrong"]);
     } finally {
       setLoading(false);

@@ -1,166 +1,182 @@
-"use client";
-
 import React from 'react';
 import Link from 'next/link';
+import { getSessionUser } from "@/app/lib/auth";
+import { prisma } from "@/app/lib/prisma";
+import { Calendar, CheckCircle2, TrendingUp, Eye, MessageSquare, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Card, CardContent } from '@/app/components/ui/card';
+import { Badge } from '@/app/components/ui/badge';
+import { Avatar, AvatarFallback } from '@/app/components/ui/avatar';
+import { Button } from '@/app/components/ui/button';
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/app/components/ui/table';
 
-// Sample Data for Mentoring History
-const mentoringSessions = [
-  { id: "SES001", date: "Oct 24, 2023", mentor: "Dr. Jane Doe", initials: "JD", agenda: "Career Path Discussion", status: "Present" },
-  { id: "SES002", date: "Oct 10, 2023", mentor: "Mark Smith", initials: "MS", agenda: "Stress Management", status: "Present" },
-  { id: "SES003", date: "Sep 28, 2023", mentor: "Dr. Jane Doe", initials: "JD", agenda: "Academic Progress Review", status: "Absent" },
-  { id: "SES004", date: "Sep 15, 2023", mentor: "Lisa Ray", initials: "LR", agenda: "Internship Readiness", status: "Present" },
-];
+export default async function MentoringHistoryPage() {
+  const sessionUser = await getSessionUser();
 
-export default function MentoringHistoryPage() {
+  const mentoringData = await prisma.studentmentor.findMany({
+    where: { student: { UserID: sessionUser?.UserID } },
+    include: {
+      mentor: true,
+      studentmentoring: { orderBy: { DateOfMentoring: 'desc' } },
+    },
+  });
+
+  const sessions = mentoringData.flatMap(md =>
+    md.studentmentoring.map(s => ({
+      ...s,
+      mentorName: md.mentor.MentorName,
+      mentorInitials: md.mentor.MentorName
+        .trim().split(" ").map((n) => n[0]).filter(Boolean).join("").toUpperCase().substring(0, 2),
+    }))
+  ).sort((a, b) => {
+    const dateA = a.DateOfMentoring ? new Date(a.DateOfMentoring).getTime() : 0;
+    const dateB = b.DateOfMentoring ? new Date(b.DateOfMentoring).getTime() : 0;
+    return dateB - dateA;
+  });
+
+  const totalSessions = sessions.length;
+  const presentSessions = sessions.filter(s => s.AttendanceStatus === 'PRESENT').length;
+  const attendanceRate = totalSessions > 0 ? Math.round((presentSessions / totalSessions) * 100) : 0;
+
+  const latestLearnerType = sessions[0]?.LearnerType || 'AVERAGE';
+  const performanceMap: Record<string, string> = {
+    'FAST': 'Excellent', 'AVERAGE': 'Average', 'SLOW': 'Needs Improvement', 'ADVANCED': 'Superior'
+  };
+  const performance = performanceMap[latestLearnerType] || 'Average';
+
+  const formatDate = (date: Date | null) => {
+    if (!date) return "TBA";
+    return new Date(date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+  };
+
   return (
     <div className="space-y-6 animate-fade-in">
-      {/* Header Section */}
+      {/* Header */}
       <div className="flex flex-col gap-2">
-        <h2 className="text-slate-900 text-3xl font-black tracking-tight">Mentoring History</h2>
-        <p className="text-slate-500 text-sm max-w-2xl">
-          Review your past academic and personal mentoring sessions, track attendance, and monitor your progress.
+        <h2 className="text-foreground text-3xl font-black tracking-tight">Mentoring History</h2>
+        <p className="text-muted-foreground text-sm max-w-2xl">
+          Review your past mentoring sessions, track attendance, and monitor your progress.
         </p>
       </div>
 
-      {/* Stats Summary */}
+      {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm flex items-center gap-4">
-          <div className="size-12 rounded-lg bg-blue-50 text-[#135bec] flex items-center justify-center border border-blue-100">
-            <span className="material-symbols-outlined">calendar_month</span>
-          </div>
-          <div>
-            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Total Sessions</p>
-            <p className="text-xl font-black text-slate-900">14</p>
-          </div>
-        </div>
-        <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm flex items-center gap-4">
-          <div className="size-12 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center border border-emerald-100">
-            <span className="material-symbols-outlined">task_alt</span>
-          </div>
-          <div>
-            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Attendance Rate</p>
-            <p className="text-xl font-black text-slate-900">92%</p>
-          </div>
-        </div>
-        <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm flex items-center gap-4">
-          <div className="size-12 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center border border-amber-100">
-            <span className="material-symbols-outlined">monitoring</span>
-          </div>
-          <div>
-            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Avg. Performance</p>
-            <p className="text-xl font-black text-slate-900">High</p>
-          </div>
-        </div>
-      </div>
-
-      {/* Search and Filters Bar */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
-        <div className="relative flex-1 max-w-md">
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-slate-400 text-xl">search</span>
-          <input 
-            className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-gray-200 bg-slate-50 text-sm focus:ring-2 focus:ring-[#135bec]/20 focus:border-[#135bec] transition-all outline-none" 
-            placeholder="Search by agenda or mentor..." 
-            type="text"
-          />
-        </div>
-        
-        <div className="flex items-center gap-3">
-          <button className="flex items-center gap-2 px-4 py-2.5 rounded-lg border border-gray-200 bg-white text-slate-600 hover:bg-slate-50 transition-all text-sm font-medium">
-            <span className="material-symbols-outlined text-[20px]">filter_list</span>
-            <span>Filters</span>
-          </button>
-          <button className="flex items-center gap-2 px-4 py-2.5 rounded-lg border border-gray-200 bg-white text-slate-600 hover:bg-slate-50 transition-all text-sm font-medium">
-            <span className="material-symbols-outlined text-[20px]">calendar_today</span>
-            <span>Date Range</span>
-          </button>
-        </div>
+        <Card>
+          <CardContent className="p-5 flex items-center gap-4">
+            <div className="size-12 rounded-lg bg-muted text-primary flex items-center justify-center">
+              <Calendar className="size-5" />
+            </div>
+            <div>
+              <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Total Sessions</p>
+              <p className="text-xl font-black text-foreground">{totalSessions}</p>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-5 flex items-center gap-4">
+            <div className="size-12 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
+              <CheckCircle2 className="size-5" />
+            </div>
+            <div>
+              <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Attendance Rate</p>
+              <p className="text-xl font-black text-foreground">{attendanceRate}%</p>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-5 flex items-center gap-4">
+            <div className="size-12 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center">
+              <TrendingUp className="size-5" />
+            </div>
+            <div>
+              <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Performance</p>
+              <p className="text-xl font-black text-foreground">{performance}</p>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       {/* History Table */}
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-slate-50">
-              <tr>
-                <th className="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Date</th>
-                <th className="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Mentor</th>
-                <th className="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Agenda</th>
-                <th className="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Attendance</th>
-                <th className="px-6 py-4 text-right text-xs font-bold text-slate-500 uppercase tracking-wider">Action</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
-              {mentoringSessions.map((session) => (
-                <tr key={session.id} className="hover:bg-slate-50/80 transition-colors group">
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-bold text-slate-900">{session.date}</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
+      <Card>
+        <Table>
+          <TableHeader>
+            <TableRow className="bg-muted">
+              <TableHead>Date</TableHead>
+              <TableHead>Mentor</TableHead>
+              <TableHead>Agenda</TableHead>
+              <TableHead>Attendance</TableHead>
+              <TableHead className="text-right">Action</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {sessions.length > 0 ? (
+              sessions.map((session) => (
+                <TableRow key={session.StudentMentoringID} className="group">
+                  <TableCell className="font-bold text-foreground">{formatDate(session.DateOfMentoring)}</TableCell>
+                  <TableCell>
                     <div className="flex items-center gap-3">
-                      <div className="size-8 rounded-full bg-blue-50 text-[#135bec] flex items-center justify-center font-bold text-[11px] border border-blue-100">
-                        {session.initials}
-                      </div>
-                      <div className="text-sm font-medium text-slate-700">{session.mentor}</div>
+                      <Avatar className="size-8">
+                        <AvatarFallback className="text-[11px] font-bold">{session.mentorInitials}</AvatarFallback>
+                      </Avatar>
+                      <span className="text-sm font-medium text-foreground">{session.mentorName}</span>
                     </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="text-sm text-slate-900 font-medium">{session.agenda}</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold ${
-                      session.status === 'Present' ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'
-                    }`}>
-                      {session.status}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                  </TableCell>
+                  <TableCell className="text-foreground font-medium">{session.MentoringMeetingAgenda || "Initial Meeting"}</TableCell>
+                  <TableCell>
+                    <Badge variant={session.AttendanceStatus === 'PRESENT' ? "secondary" : "destructive"}
+                      className={session.AttendanceStatus === 'PRESENT' ? "bg-emerald-50 text-emerald-700" : "bg-red-50 text-red-700"}>
+                      {session.AttendanceStatus === 'PRESENT' ? 'Present' : 'Absent'}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-2">
-                      {/* Give Feedback Button - Only visible if Present */}
-                      {session.status === 'Present' && (
-                        <Link href={`/student/mentoringhistory/feedback/${session.id}`}>
-                          <button 
-                            className="flex items-center gap-1.5 px-3 py-1.5 bg-[#135bec] text-white rounded-lg text-xs font-bold hover:bg-blue-700 transition-all shadow-md shadow-blue-100"
-                          >
-                            <span className="material-symbols-outlined text-[16px]">rate_review</span>
-                            <span>Give Feedback</span>
-                          </button>
-                        </Link>
+                      {session.AttendanceStatus === 'PRESENT' && (
+                        session.StudentsOpinion ? (
+                          <Button variant="ghost" size="sm" disabled className="text-xs">
+                            <CheckCircle2 className="size-4 mr-1" /> Feedback Given
+                          </Button>
+                        ) : (
+                          <Link href={`/student/mentoringhistory/feedback/${session.StudentMentoringID}`}>
+                            <Button size="sm" className="text-xs">
+                              <MessageSquare className="size-4 mr-1" /> Give Feedback
+                            </Button>
+                          </Link>
+                        )
                       )}
-                      
-                      {/* View Details Button */}
-                      <Link href={`/student/mentoringhistory/${session.id}`}>
-                        <button 
-                          className="p-1.5 text-slate-400 hover:text-[#135bec] hover:bg-blue-50 rounded-lg transition-colors" 
-                          title="View Session Details"
-                        >
-                          <span className="material-symbols-outlined text-[20px]">visibility</span>
-                        </button>
+                      <Link href={`/student/mentoringhistory/${session.StudentMentoringID}`}>
+                        <Button variant="ghost" size="icon" title="View Session Details">
+                          <Eye className="size-4" />
+                        </Button>
                       </Link>
                     </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+                  </TableCell>
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={5} className="text-center py-12 text-muted-foreground font-medium">
+                  No mentoring sessions found in your history.
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
 
         {/* Pagination */}
-        <div className="px-6 py-4 bg-white border-t border-gray-100 flex items-center justify-between">
-          <p className="text-sm text-slate-500">
-            Showing <span className="font-bold text-slate-900">1</span> to <span className="font-bold text-slate-900">4</span> of <span className="font-bold text-slate-900">14</span> sessions
+        <div className="px-6 py-4 border-t border-border flex items-center justify-between">
+          <p className="text-sm text-muted-foreground">
+            Showing <span className="font-bold text-foreground">{sessions.length > 0 ? 1 : 0}</span> to <span className="font-bold text-foreground">{sessions.length}</span> of <span className="font-bold text-foreground">{sessions.length}</span> sessions
           </p>
           <div className="flex gap-1">
-            <button className="p-2 border border-gray-200 rounded-lg text-slate-400 hover:bg-slate-50">
-              <span className="material-symbols-outlined text-sm">chevron_left</span>
-            </button>
-            <button className="px-3.5 py-1 border border-[#135bec] bg-blue-50 text-[#135bec] rounded-lg font-bold text-sm">1</button>
-            <button className="px-3.5 py-1 border border-gray-200 rounded-lg text-slate-600 hover:bg-slate-50 font-medium text-sm">2</button>
-            <button className="p-2 border border-gray-200 rounded-lg text-slate-400 hover:bg-slate-50">
-              <span className="material-symbols-outlined text-sm">chevron_right</span>
-            </button>
+            <Button variant="outline" size="icon" className="size-9" disabled>
+              <ChevronLeft className="size-4" />
+            </Button>
+            <Button variant="outline" size="sm" className="border-primary bg-muted text-primary font-bold">1</Button>
+            <Button variant="outline" size="icon" className="size-9" disabled>
+              <ChevronRight className="size-4" />
+            </Button>
           </div>
         </div>
-      </div>
+      </Card>
     </div>
   );
 }

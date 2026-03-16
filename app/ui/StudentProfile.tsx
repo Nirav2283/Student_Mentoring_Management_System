@@ -6,17 +6,17 @@
 //   const sessions = student.studentMentor?.studentMentorings ?? [];
 
 //   return (
-//     <div className="bg-[#f8fafc] min-h-screen p-4 md:p-8 text-slate-900">
+//     <div className="bg-[#f8fafc] min-h-screen p-4 md:p-8 text-foreground">
 //       <div className="max-w-7xl mx-auto space-y-6">
 
 //         {/* ================= PROFILE ================= */}
 //         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-//           <div className="lg:col-span-2 bg-white rounded-xl p-6 border">
+//           <div className="lg:col-span-2 bg-card rounded-xl p-6 border">
 //             <h2 className="text-2xl font-bold">
 //               {student.firstName} {student.lastName}
 //             </h2>
 
-//             <p className="text-sm text-slate-500 mt-1">
+//             <p className="text-sm text-muted-foreground mt-1">
 //               Enrollment: {student.enrollmentNo}
 //             </p>
 
@@ -28,33 +28,33 @@
 //               <Info label="Status" value={student.isActive ? "Active" : "Inactive"} />
 //             </div>
 
-//             <p className="text-sm text-slate-600">
+//             <p className="text-sm text-muted-foreground">
 //               {student.internalRemarks || "No remarks"}
 //             </p>
 //           </div>
 
 //           {/* ================= MENTOR ================= */}
-//           <div className="bg-white rounded-xl p-6 border">
+//           <div className="bg-card rounded-xl p-6 border">
 //             <h3 className="font-bold mb-4">Mentor</h3>
 //             {student.studentMentor ? (
 //               <>
 //                 <p className="font-semibold">
 //                   {student.studentMentor.mentor.name}
 //                 </p>
-//                 <p className="text-sm text-slate-500">
+//                 <p className="text-sm text-muted-foreground">
 //                   {student.studentMentor.mentor.designation}
 //                 </p>
 //               </>
 //             ) : (
-//               <p className="text-sm text-slate-400">Not Assigned</p>
+//               <p className="text-sm text-muted-foreground">Not Assigned</p>
 //             )}
 //           </div>
 //         </div>
 
 //         {/* ================= SESSIONS TABLE ================= */}
-//         <div className="bg-white rounded-xl border overflow-hidden">
+//         <div className="bg-card rounded-xl border overflow-hidden">
 //           <table className="w-full">
-//             <thead className="bg-slate-50 text-xs uppercase">
+//             <thead className="bg-muted text-xs uppercase">
 //               <tr>
 //                 <th className="px-6 py-3">Date</th>
 //                 <th className="px-6 py-3">Agenda</th>
@@ -91,7 +91,7 @@
 
 // const Info = ({ label, value }: any) => (
 //   <div>
-//     <p className="text-xs text-slate-400 uppercase">{label}</p>
+//     <p className="text-xs text-muted-foreground uppercase">{label}</p>
 //     <p className="font-medium">{value}</p>
 //   </div>
 // );

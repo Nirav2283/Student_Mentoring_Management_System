@@ -1,8 +1,14 @@
 import nodemailer from "nodemailer";
+import { mentoraEmailTemplate, mentoraButton } from "./emailTemplate";
 
-export async function sendAdminWelcomeEmail(email: string, name: string , collegeName:string , token : string) {
+export async function sendAdminWelcomeEmail(
+  email: string,
+  name: string,
+  collegeName: string,
+  token: string
+) {
+  const verificationUrl = `http://localhost:3000/api/auth/verify-email?token=${token}`;
 
-    const verificationurl = `http://localhost:3000/api/auth/verify-email?token=${token}`
   const transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
@@ -11,46 +17,53 @@ export async function sendAdminWelcomeEmail(email: string, name: string , colleg
     },
   });
 
-  // Modern HTML Template
-  const htmlContent = `
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <style>
-        .container { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #1a1a1a; max-width: 600px; margin: 0 auto; padding: 20px; }
-        .card { border: 1px solid #e2e8f0; border-radius: 12px; padding: 40px; text-align: center; background-color: #ffffff; }
-        .logo { background-color: #2656f2; color: white; width: 50px; height: 50px; line-height: 50px; border-radius: 10px; margin: 0 auto 20px; font-weight: bold; font-size: 24px; }
-        .success-icon { color: #2fb85b; font-size: 48px; margin-bottom: 20px; }
-        h1 { color: #0f172a; font-size: 24px; margin-bottom: 10px; }
-        p { color: #64748b; font-size: 16px; margin-bottom: 30px; }
-        .button { background-color: #2656f2; color: #ffffff !important; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block; }
-        .footer { margin-top: 30px; font-size: 12px; color: #94a3b8; }
-      </style>
-    </head>
-    <body>
-      <div class="container">
-        <div class="card">
-          <div class="logo">M</div>
-          <div class="success-icon">✓</div>
-          <h1>Account Created Successfully!</h1>
-          <p>Hello <b>${name}</b>, your administrator account for the Mentorship Management System for ${collegeName} is now active. You can now manage programs, mentors, and students from your dashboard.</p>
-          <p>Please Verify Your email</p>
-          <a href="${verificationurl}" class="button">Verify Your email</a> 
-          <p>This link will expire in 1 hour</p>
+  const htmlContent = mentoraEmailTemplate({
+    preheader: `Welcome to Mentora, ${name}! Verify your email to get started.`,
+    body: `
+      <!-- Accent Bar -->
+      <div style="height:4px; background:linear-gradient(90deg, #f5c518 0%, #f59e0b 100%);"></div>
+
+      <div style="padding:40px 36px;">
+        <!-- Success Icon -->
+        <div style="text-align:center; margin-bottom:28px;">
+          <div style="display:inline-block; width:64px; height:64px; border-radius:50%; background-color:#f0fdf4; border:2px solid #bbf7d0; line-height:64px; text-align:center;">
+            <span style="font-size:32px; color:#22c55e;">✓</span>
+          </div>
         </div>
-        <div class="footer">
-          © ${new Date().getFullYear()} Mentorship Management System. All rights reserved.<br>
-          If you did not authorize this account, please contact support immediately.
-        </div>
+
+        <h1 style="margin:0 0 8px; font-size:24px; font-weight:800; color:#1a1a1a; text-align:center; font-family:'Segoe UI',Arial,sans-serif;">
+          Account Created Successfully!
+        </h1>
+        <p style="margin:0 0 28px; font-size:15px; color:#6b7280; text-align:center; line-height:1.6; font-family:'Segoe UI',Arial,sans-serif;">
+          Hello <strong style="color:#1a1a1a;">${name}</strong>, your administrator account for
+          <strong style="color:#1a1a1a;">${collegeName}</strong> is now active.
+        </p>
+
+        <!-- Divider -->
+        <div style="border-top:1px solid #f0ede6; margin:0 0 28px;"></div>
+
+        <p style="margin:0 0 8px; font-size:14px; color:#6b7280; text-align:center; font-family:'Segoe UI',Arial,sans-serif;">
+          Please verify your email address to start managing your mentorship program.
+        </p>
+        <p style="margin:0 0 28px; font-size:12px; color:#9ca3af; text-align:center; font-family:'Segoe UI',Arial,sans-serif;">
+          This link will expire in 1 hour.
+        </p>
+
+        ${mentoraButton(verificationUrl, "Verify Email Address →")}
+
+        <!-- Fallback Link -->
+        <p style="margin:28px 0 0; font-size:11px; color:#b5b3ab; text-align:center; word-break:break-all; font-family:'Segoe UI',Arial,sans-serif;">
+          If the button doesn't work, copy this link:<br>
+          <a href="${verificationUrl}" style="color:#d97706;">${verificationUrl}</a>
+        </p>
       </div>
-    </body>
-    </html>
-  `;
+    `,
+  });
 
   const mailOptions = {
-    from: `"Mentorship System" <${process.env.EMAIL_USER}>`,
+    from: `"Mentora" <${process.env.EMAIL_USER}>`,
     to: email,
-    subject: "Welcome to the Mentora System - Account Active",
+    subject: "Verify Your Mentora Account",
     html: htmlContent,
   };
 

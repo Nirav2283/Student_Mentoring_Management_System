@@ -13,12 +13,12 @@
 //   if (!user) return null;
 
 //   return (
-//     <div className="flex justify-between px-6 py-4 bg-white border-b">
-//       <h1 className="font-bold text-[#135bec]">Mentora</h1>
+//     <div className="flex justify-between px-6 py-4 bg-card border-b">
+//       <h1 className="font-bold text-primary">Mentora</h1>
 
 //       <div className="text-right">
 //         <p className="text-sm font-bold">{user.name}</p>
-//         <p className="text-xs text-gray-500">{user.email}</p>
+//         <p className="text-xs text-muted-foreground">{user.email}</p>
 //       </div>
 //     </div>
 //   );
