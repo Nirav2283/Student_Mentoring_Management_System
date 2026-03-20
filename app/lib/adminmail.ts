@@ -7,7 +7,7 @@ export async function sendAdminWelcomeEmail(
   collegeName: string,
   token: string
 ) {
-  const verificationUrl = `http://localhost:3000/api/auth/verify-email?token=${token}`;
+  const verificationUrl = `https://student-mentoring-management-system-liart.vercel.app/api/auth/verify-email?token=${token}`;
 
   const transporter = nodemailer.createTransport({
     service: "gmail",
