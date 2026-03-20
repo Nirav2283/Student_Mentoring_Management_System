@@ -30,5 +30,5 @@ export async function GET(req: Request) {
     },
   });
 
-  return NextResponse.redirect("http://localhost:3000/login");
+  return NextResponse.redirect(`${process.env.WEB_URL}/login`);
 }

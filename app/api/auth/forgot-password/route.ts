@@ -27,7 +27,7 @@ export async function POST(req: Request) {
     },
   });
 
-  const resetLink = `http://localhost:3000/reset-password?token=${token}`;
+  const resetLink = `${process.env.WEB_URL}/reset-password?token=${token}`;
 
   try {
     await sendResetEmail(email, resetLink);
