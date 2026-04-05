@@ -1,61 +1,83 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { usePathname } from "next/navigation";
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useTransition,
+} from "react";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
-export default function NavigationProgress() {
-  const pathname = usePathname();
-  const prevPathname = useRef(pathname);
-  const [isNavigating, setIsNavigating] = useState(false);
+/* ── Context ── */
+const NavProgressCtx = createContext<{
+  isPending: boolean;
+  navigate: (href: string) => void;
+}>({ isPending: false, navigate: () => {} });
+
+export function useNavProgress() {
+  return useContext(NavProgressCtx);
+}
+
+/* ── Provider (wrap each layout) ── */
+export function NavigationProgressProvider({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
   const toastIdRef = useRef<string | number | null>(null);
 
-  useEffect(() => {
-    if (prevPathname.current !== pathname) {
-      // Navigation started — show loading
-      setIsNavigating(true);
+  const navigate = useCallback(
+    (href: string) => {
+      // Show toast immediately on click
+      if (toastIdRef.current !== null) {
+        toast.dismiss(toastIdRef.current);
+      }
       toastIdRef.current = toast.loading("Loading…", {
-        duration: Infinity,
         position: "top-center",
       });
 
-      prevPathname.current = pathname;
+      startTransition(() => {
+        router.push(href);
+      });
+    },
+    [router, startTransition]
+  );
 
-      // Dismiss after a short delay (page has already loaded since pathname changed)
-      const timer = setTimeout(() => {
-        if (toastIdRef.current !== null) {
-          toast.dismiss(toastIdRef.current);
-          toastIdRef.current = null;
-        }
-        setIsNavigating(false);
-      }, 600);
-
-      return () => {
-        clearTimeout(timer);
-        if (toastIdRef.current !== null) {
-          toast.dismiss(toastIdRef.current);
-          toastIdRef.current = null;
-        }
-      };
+  // Dismiss toast when transition completes
+  useEffect(() => {
+    if (!isPending && toastIdRef.current !== null) {
+      toast.dismiss(toastIdRef.current);
+      toastIdRef.current = null;
     }
-  }, [pathname]);
+  }, [isPending]);
 
-  if (!isNavigating) return null;
+  return (
+    <NavProgressCtx.Provider value={{ isPending, navigate }}>
+      {children}
+      {isPending && <ProgressBar />}
+    </NavProgressCtx.Provider>
+  );
+}
 
+/* ── Animated top bar ── */
+function ProgressBar() {
   return (
     <div className="fixed top-0 left-0 right-0 z-[9999] h-[3px] pointer-events-none">
       <div
         className="h-full bg-primary rounded-r-full"
-        style={{
-          animation: "nav-progress 1.2s ease-in-out infinite",
-        }}
+        style={{ animation: "nav-progress 1.2s ease-in-out infinite" }}
       />
       <style>{`
         @keyframes nav-progress {
-          0% { width: 0%; margin-left: 0%; }
-          30% { width: 60%; margin-left: 0%; }
-          60% { width: 30%; margin-left: 50%; }
-          100% { width: 0%; margin-left: 100%; }
+          0%   { width: 0%;  margin-left: 0%; }
+          30%  { width: 60%; margin-left: 0%; }
+          60%  { width: 30%; margin-left: 50%; }
+          100% { width: 0%;  margin-left: 100%; }
         }
       `}</style>
     </div>
