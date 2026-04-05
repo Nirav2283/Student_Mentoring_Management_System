@@ -3,6 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import NavigationProgress from "@/app/components/NavigationProgress";
 import { Logout } from "../actions/logout";
 import { Button } from "@/app/components/ui/button";
 import { Separator } from "@/app/components/ui/separator";
@@ -89,6 +90,7 @@ export default function AdminLayoutClient({
 
       {/* The Dynamic Content Area */}
       <main className="flex-1 flex flex-col h-full overflow-hidden relative">
+        <NavigationProgress />
         <header className="flex items-center justify-between border-b border-border bg-card px-6 py-4 sticky top-0 z-10">
           <h2 className="text-xl font-bold text-foreground tracking-tight">
             Mentora Portal

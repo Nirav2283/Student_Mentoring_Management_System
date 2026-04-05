@@ -58,10 +58,6 @@ export default function SetupAdminForm() {
 
   return (
     <div className="bg-background text-foreground font-sans min-h-screen flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-      <link
-        rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=block"
-      />
 
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="flex justify-center items-center gap-3">
@@ -145,9 +141,9 @@ export default function SetupAdminForm() {
                 <input type="checkbox" className="h-4 w-4 rounded border-input mt-1" required />
                 <label className="ml-3 text-sm text-muted-foreground">
                   I agree to the{" "}
-                  <Link href="#" className="font-semibold text-foreground hover:underline">Terms</Link>{" "}
+                  <span className="font-semibold text-foreground">Terms</span>{" "}
                   and{" "}
-                  <Link href="#" className="font-semibold text-foreground hover:underline">Privacy Policy</Link>.
+                  <span className="font-semibold text-foreground">Privacy Policy</span>.
                 </label>
               </div>
 

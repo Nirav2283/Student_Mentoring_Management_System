@@ -133,35 +133,6 @@ const SessionRecordForm = () => {
 
   return (
     <div className=" min-h-screen py-12 px-4 md:px-8 font-['Inter',_sans-serif] text-foreground">
-      <style jsx global>{`
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
-        @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL,GRAD@200..700,0..1,-25..200');
-        
-        body {
-          font-family: 'Inter', sans-serif;
-        }
-
-        .symbol-visible {
-          font-family: 'Material Symbols Outlined';
-          font-weight: 600;
-          font-style: normal;
-          font-size: 22px;
-          display: inline-block;
-          line-height: 1;
-          text-transform: none;
-          letter-spacing: normal;
-          word-wrap: normal;
-          white-space: nowrap;
-          direction: ltr;
-          font-variation-settings: 'FILL' 1, 'wght' 600, 'GRAD' 0, 'opsz' 24;
-          vertical-align: middle;
-        }
-
-        input[type="date"]::-webkit-calendar-picker-indicator {
-          cursor: pointer;
-          opacity: 0.6;
-        }
-      `}</style>
 
       <div className="max-w-4xl mx-auto flex flex-col gap-6">
         {/* Breadcrumb Navigation */}

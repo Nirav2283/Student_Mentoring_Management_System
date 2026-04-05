@@ -121,10 +121,6 @@ const MentorshipManager = () => {
 
   return (
     <div className="bg-background min-h-screen text-foreground font-sans">
-      <link
-        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
-        rel="stylesheet"
-      />
 
       <main className="max-w-7xl mx-auto w-full px-6 md:px-10 py-8">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 mb-8">

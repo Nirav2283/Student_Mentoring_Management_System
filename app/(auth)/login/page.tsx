@@ -53,10 +53,6 @@ export default function LoginPage() {
 
   return (
     <div className="font-sans bg-background text-foreground antialiased">
-      <link
-        rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=block"
-      />
 
       <div className="flex min-h-screen w-full flex-row overflow-hidden">
         {/* Left Side: Visual/Branding */}
@@ -174,9 +170,7 @@ export default function LoginPage() {
             <div className="mt-4 pt-6 border-t border-border flex flex-col gap-4 items-center text-center">
               <p className="text-sm text-muted-foreground">
                 Having trouble?{" "}
-                <Link href="#" className="text-foreground font-medium hover:underline">
-                  Contact Support
-                </Link>
+                <span className="text-foreground font-medium">Contact Support</span>
               </p>
               <p className="text-xs text-muted-foreground/50">
                 © 2026 Mentora System. All rights reserved.

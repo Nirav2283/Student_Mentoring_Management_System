@@ -385,7 +385,7 @@ export default function LandingPageClient({
           </div>
 
           {/* ═══════════════ Stats Section ═══════════════ */}
-          <motion.div
+          {/* <motion.div
             className="w-full grid grid-cols-2 md:grid-cols-4 gap-8 py-14 px-6 border-y border-amber-200/50 my-12 bg-amber-50/50 rounded-2xl"
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
@@ -420,7 +420,7 @@ export default function LandingPageClient({
               icon={GraduationCap}
               index={3}
             />
-          </motion.div>
+          </motion.div> */}
         </div>
       </main>
 
@@ -433,10 +433,10 @@ export default function LandingPageClient({
         transition={{ duration: 0.5 }}
       >
         <div className="max-w-[960px] mx-auto px-5 flex flex-col md:flex-row items-center justify-between gap-6">
-          <p className="text-muted-foreground text-sm">
+          <p className="text-sm text-muted-foreground text-cen">
             © 2026 Mentora Inc. All rights reserved.
           </p>
-          <div className="flex items-center gap-8">
+          {/* <div className="flex items-center gap-8">
             {["About", "Help Center", "Privacy"].map((link) => (
               <Link
                 key={link}
@@ -447,7 +447,7 @@ export default function LandingPageClient({
                 <span className="absolute -bottom-0.5 left-0 w-0 h-px bg-amber-400 transition-all duration-300 group-hover:w-full" />
               </Link>
             ))}
-          </div>
+          </div> */}
         </div>
       </motion.footer>
     </div>
