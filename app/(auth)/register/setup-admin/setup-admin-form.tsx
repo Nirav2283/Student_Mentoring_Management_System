@@ -8,6 +8,7 @@ import { Input } from "@/app/components/ui/input";
 import { Label } from "@/app/components/ui/label";
 import { Card, CardContent } from "@/app/components/ui/card";
 import { Eye, EyeOff, ArrowLeft } from "lucide-react";
+import { trackedFetch } from "@/app/lib/trackedFetch";
 
 export default function SetupAdminForm() {
   const router = useRouter();
@@ -39,7 +40,7 @@ export default function SetupAdminForm() {
       setError("Invalid registration link"); setLoading(false); return;
     }
 
-    const res = await fetch("/api/auth/setup-admin", {
+    const res = await trackedFetch("/api/auth/setup-admin", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

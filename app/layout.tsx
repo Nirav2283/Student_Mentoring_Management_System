@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/app/components/ui/sonner";
+import { GlobalLoader } from "@/app/components/GlobalLoader";
+import { NavigationProgressProvider } from "@/app/components/NavigationProgress";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -28,8 +30,11 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {children}
-        <Toaster />
+        <NavigationProgressProvider>
+          {children}
+          <GlobalLoader />
+          <Toaster />
+        </NavigationProgressProvider>
       </body>
     </html>
   );

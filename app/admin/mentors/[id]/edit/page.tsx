@@ -3,6 +3,7 @@ import { useRouter, useParams } from "next/navigation";
 import { useState, useEffect, use } from "react";
 import AddStudentMentor from "@/app/ui/AddStudentMentor";
 import { toast } from "sonner";
+import { trackedFetch } from "@/app/lib/trackedFetch";
 
 export default function EditMentorPage({ params }: { params: Promise<{ id: string }> }) {
     const router = useRouter();
@@ -67,7 +68,7 @@ export default function EditMentorPage({ params }: { params: Promise<{ id: strin
     useEffect(() => {
         const fetchMentor = async () => {
             try {
-                const response = await fetch(`/api/mentors-details?id=${id}`);
+                const response = await trackedFetch(`/api/mentors-details?id=${id}`);
                 const data = await response.json();
                 if (data.success) {
                     const m = data.mentor;
@@ -111,7 +112,7 @@ export default function EditMentorPage({ params }: { params: Promise<{ id: strin
                 return;
             }
 
-            const res = await fetch(`/api/mentors/${id}`, {
+            const res = await trackedFetch(`/api/mentors/${id}`, {
                 method: "PATCH",
                 headers: {
                     "Content-Type": "application/json",

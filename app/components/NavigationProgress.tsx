@@ -6,80 +6,93 @@ import React, {
   useContext,
   useEffect,
   useRef,
-  useTransition,
 } from "react";
-import { useRouter } from "next/navigation";
-import { toast } from "sonner";
+import { usePathname, useRouter } from "next/navigation";
+import { endRequest, startRequest } from "@/app/store/Loadingstore";
 
-/* ── Context ── */
 const NavProgressCtx = createContext<{
-  isPending: boolean;
   navigate: (href: string) => void;
-}>({ isPending: false, navigate: () => {} });
+  startNavigation: () => void;
+}>({
+  navigate: () => {},
+  startNavigation: () => {},
+});
 
 export function useNavProgress() {
   return useContext(NavProgressCtx);
 }
 
-/* ── Provider (wrap each layout) ── */
 export function NavigationProgressProvider({
   children,
 }: {
   children: React.ReactNode;
 }) {
   const router = useRouter();
-  const [isPending, startTransition] = useTransition();
-  const toastIdRef = useRef<string | number | null>(null);
+  const pathname = usePathname();
+  const pendingRef = useRef(false);
+
+  const startNavigation = useCallback(() => {
+    if (pendingRef.current) return;
+
+    pendingRef.current = true;
+    startRequest();
+  }, []);
 
   const navigate = useCallback(
     (href: string) => {
-      // Show toast immediately on click
-      if (toastIdRef.current !== null) {
-        toast.dismiss(toastIdRef.current);
-      }
-      toastIdRef.current = toast.loading("Loading…", {
-        position: "top-center",
-      });
-
-      startTransition(() => {
-        router.push(href);
-      });
+      if (href === pathname) return;
+      startNavigation();
+      router.push(href);
     },
-    [router, startTransition]
+    [pathname, router, startNavigation]
   );
 
-  // Dismiss toast when transition completes
   useEffect(() => {
-    if (!isPending && toastIdRef.current !== null) {
-      toast.dismiss(toastIdRef.current);
-      toastIdRef.current = null;
-    }
-  }, [isPending]);
+    if (!pendingRef.current) return;
+
+    pendingRef.current = false;
+    endRequest();
+  }, [pathname]);
+
+  useEffect(() => {
+    const handleLinkClick = (event: MouseEvent) => {
+      if (
+        event.defaultPrevented ||
+        event.button !== 0 ||
+        event.metaKey ||
+        event.ctrlKey ||
+        event.shiftKey ||
+        event.altKey ||
+        !(event.target instanceof Element)
+      ) {
+        return;
+      }
+
+      const link = event.target.closest("a[href]");
+      if (
+        !(link instanceof HTMLAnchorElement) ||
+        link.hasAttribute("download") ||
+        (link.target && link.target !== "_self")
+      ) {
+        return;
+      }
+
+      const destination = new URL(link.href, window.location.href);
+      if (
+        destination.origin === window.location.origin &&
+        destination.pathname !== pathname
+      ) {
+        startNavigation();
+      }
+    };
+
+    document.addEventListener("click", handleLinkClick);
+    return () => document.removeEventListener("click", handleLinkClick);
+  }, [pathname, startNavigation]);
 
   return (
-    <NavProgressCtx.Provider value={{ isPending, navigate }}>
+    <NavProgressCtx.Provider value={{ navigate, startNavigation }}>
       {children}
-      {isPending && <ProgressBar />}
     </NavProgressCtx.Provider>
-  );
-}
-
-/* ── Animated top bar ── */
-function ProgressBar() {
-  return (
-    <div className="fixed top-0 left-0 right-0 z-[9999] h-[3px] pointer-events-none">
-      <div
-        className="h-full bg-primary rounded-r-full"
-        style={{ animation: "nav-progress 1.2s ease-in-out infinite" }}
-      />
-      <style>{`
-        @keyframes nav-progress {
-          0%   { width: 0%;  margin-left: 0%; }
-          30%  { width: 60%; margin-left: 0%; }
-          60%  { width: 30%; margin-left: 50%; }
-          100% { width: 0%;  margin-left: 100%; }
-        }
-      `}</style>
-    </div>
   );
 }

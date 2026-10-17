@@ -3,6 +3,7 @@ import AddStudentMentor from "@/app/ui/AddStudentMentor";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
+import { trackedFetch } from "@/app/lib/trackedFetch";
 
 export default function AddStudentPage() {
   const router = useRouter();
@@ -49,7 +50,7 @@ export default function AddStudentPage() {
     }
 
     try {
-      const res = await fetch("/api/students", {
+      const res = await trackedFetch("/api/students", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

@@ -10,6 +10,7 @@ import { Textarea } from "@/app/components/ui/textarea";
 import { Card, CardContent } from "@/app/components/ui/card";
 import { Separator } from "@/app/components/ui/separator";
 import { ArrowRight, CheckCircle, Building2, Users } from "lucide-react";
+import { trackedFetch } from "@/app/lib/trackedFetch";
 
 const SidebarFeature = ({ title, desc }: { title: string; desc: string }) => (
   <div className="flex items-start gap-3">
@@ -42,7 +43,7 @@ export default function CollegeRegistration() {
       setError("All fields are required"); setLoading(false); return;
     }
 
-    const res = await fetch("/api/auth/register", {
+    const res = await trackedFetch("/api/auth/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(form),

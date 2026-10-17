@@ -8,6 +8,7 @@ import { Label } from "@/app/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/app/components/ui/card";
 import { ArrowLeft, Mail, KeyRound } from "lucide-react";
 import { toast } from "sonner";
+import { trackedFetch } from "@/app/lib/trackedFetch";
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
@@ -23,7 +24,7 @@ const ForgotPassword = () => {
       setError("");
       setMessage("");
 
-      const res = await fetch("/api/auth/forgot-password", {
+      const res = await trackedFetch("/api/auth/forgot-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),

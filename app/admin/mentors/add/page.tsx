@@ -3,6 +3,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import AddStudentMentor from "@/app/ui/AddStudentMentor";
 import { toast } from "sonner";
+import { trackedFetch } from "@/app/lib/trackedFetch";
 export default function AddMentorPage() {
   const router = useRouter();
   const [errors, setErrors] = useState<string[]>([]);
@@ -80,7 +81,7 @@ export default function AddMentorPage() {
         return;
       }
 
-      const res = await fetch("/api/mentors", {
+      const res = await trackedFetch("/api/mentors", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

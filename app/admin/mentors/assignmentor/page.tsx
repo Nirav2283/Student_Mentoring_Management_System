@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { toast } from "sonner";
+import { trackedFetch } from "@/app/lib/trackedFetch";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -26,7 +27,7 @@ const MentorshipManager = () => {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const response = await fetch("/api/mentorship", { cache: "no-store" });
+      const response = await trackedFetch("/api/mentorship", { cache: "no-store" });
       const data = await response.json();
       if (data.activemappings) setActiveMappings(data.activemappings);
       if (data.unassignedStudents)
@@ -64,7 +65,7 @@ const MentorshipManager = () => {
     }
 
     try {
-      const response = await fetch("/api/mentorship", {
+      const response = await trackedFetch("/api/mentorship", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -101,7 +102,7 @@ const MentorshipManager = () => {
 
   const handleUnassign = async (studentmentorid: number) => {
     try {
-      const response = await fetch("/api/mentorship", {
+      const response = await trackedFetch("/api/mentorship", {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ studentMentorId: studentmentorid }),

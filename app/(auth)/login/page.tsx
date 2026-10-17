@@ -9,6 +9,7 @@ import { Label } from "@/app/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/app/components/ui/card";
 import { Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
+import { trackedFetch } from "@/app/lib/trackedFetch";
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
@@ -22,7 +23,7 @@ export default function LoginPage() {
     try {
       setLoading(true);
       setError("");
-      const res = await fetch("/api/auth/login", {
+      const res = await trackedFetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ Email: email, Password: password }),

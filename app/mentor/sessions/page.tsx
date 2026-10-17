@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Loader2, CheckCircle2, AlertCircle, Smile, Meh, Frown, BadgeInfo, ClipboardList, User, Calendar, FileText, Upload, ChevronRight, Search, ChevronDown, BarChart4, UserCheck, MessageSquare, CalendarRange, Info, Save, ChevronsUpDown } from 'lucide-react';
 import { toast } from 'sonner';
+import { trackedFetch } from "@/app/lib/trackedFetch";
 
 interface Student {
   StudentID: number;
@@ -41,7 +42,7 @@ const SessionRecordForm = () => {
   useEffect(() => {
     const fetchStudents = async () => {
       try {
-        const res = await fetch('/api/mentor/students');
+        const res = await trackedFetch('/api/mentor/students');
         const data = await res.json();
         if (data.success) {
           setStudents(data.students);
@@ -100,7 +101,7 @@ const SessionRecordForm = () => {
     setMessage(null);
 
     try {
-      const res = await fetch('/api/mentor/sessions', {
+      const res = await trackedFetch('/api/mentor/sessions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

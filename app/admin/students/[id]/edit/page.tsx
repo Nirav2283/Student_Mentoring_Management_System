@@ -3,6 +3,7 @@ import AddStudentMentor from "@/app/ui/AddStudentMentor";
 import { useRouter, useParams } from "next/navigation";
 import { useState, useEffect, use } from "react";
 import { toast } from "sonner";
+import { trackedFetch } from "@/app/lib/trackedFetch";
 
 export default function EditStudentPage({ params }: { params: Promise<{ id: string }> }) {
     const router = useRouter();
@@ -35,13 +36,13 @@ export default function EditStudentPage({ params }: { params: Promise<{ id: stri
     useEffect(() => {
         const fetchStudent = async () => {
             try {
-                const res = await fetch(`/api/students`); // We don't have a GET by ID yet, but students page has Prisma call. 
+                const res = await trackedFetch(`/api/students`); // We don't have a GET by ID yet, but students page has Prisma call.
                 // Actually, it's better to fetch from a new endpoint or just use the profile page logic if it was a server component.
                 // Since this is a client component for the form, I'll need an endpoint or just fetch all and find (not ideal).
                 // Wait, I should probably make this a server component that passes data to a client component.
 
                 // For now, let's assume we have a GET /api/students/[id]
-                const response = await fetch(`/api/students-details?id=${id}`);
+                const response = await trackedFetch(`/api/students-details?id=${id}`);
                 const data = await response.json();
                 if (data.success) {
                     const s = data.student;
@@ -86,7 +87,7 @@ export default function EditStudentPage({ params }: { params: Promise<{ id: stri
         }
 
         try {
-            const res = await fetch(`/api/students/${id}`, {
+            const res = await trackedFetch(`/api/students/${id}`, {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({

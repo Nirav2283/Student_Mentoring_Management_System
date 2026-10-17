@@ -7,6 +7,7 @@ import { Button } from "@/app/components/ui/button";
 import { Input } from "@/app/components/ui/input";
 import { Label } from "@/app/components/ui/label";
 import { toast } from "sonner";
+import { trackedFetch } from "@/app/lib/trackedFetch";
 
 type Props = {
   email: string;
@@ -27,7 +28,7 @@ const ChangePasswordClient = ({ email }: Props) => {
       setMessage("");
       setMessageType("");
 
-      const res = await fetch("/api/auth/change-password", {
+      const res = await trackedFetch("/api/auth/change-password", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

@@ -7,6 +7,7 @@ import { Card, CardContent } from '@/app/components/ui/card';
 import { Button } from '@/app/components/ui/button';
 import { Textarea } from '@/app/components/ui/textarea';
 import { toast } from 'sonner';
+import { trackedFetch } from "@/app/lib/trackedFetch";
 
 export default function FeedbackFormClient({ sessionId }: { sessionId: number }) {
   const [rating, setRating] = useState(4);
@@ -29,7 +30,7 @@ export default function FeedbackFormClient({ sessionId }: { sessionId: number })
     setError(null);
 
     try {
-      const response = await fetch('/api/student/feedback', {
+      const response = await trackedFetch('/api/student/feedback', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ sessionId, rating, comments }),

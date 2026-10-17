@@ -2,10 +2,7 @@
 
 import React, { useState } from "react";
 import { usePathname } from "next/navigation";
-import {
-  NavigationProgressProvider,
-  useNavProgress,
-} from "@/app/components/NavigationProgress";
+import { useNavProgress } from "@/app/components/NavigationProgress";
 import { Logout } from "../actions/logout";
 import { Button } from "@/app/components/ui/button";
 import { Separator } from "@/app/components/ui/separator";
@@ -39,6 +36,7 @@ function AdminLayoutContent({
   children: React.ReactNode;
   user: any;
 }) {
+  const { startNavigation } = useNavProgress();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const closeMobileMenu = () => setMobileMenuOpen(false);
 
@@ -84,7 +82,7 @@ function AdminLayoutContent({
       </div>
 
       {/* Footer Actions */}
-      <form action={Logout}>
+      <form action={Logout} onSubmit={startNavigation}>
         <Button variant="outline" className="w-full gap-2 text-muted-foreground hover:text-destructive hover:border-destructive/50 hover:bg-destructive/5">
           <LogOut className="size-4" />
           Sign Out
@@ -173,9 +171,5 @@ export default function AdminLayoutClient({
   children: React.ReactNode;
   user: any;
 }) {
-  return (
-    <NavigationProgressProvider>
-      <AdminLayoutContent user={user}>{children}</AdminLayoutContent>
-    </NavigationProgressProvider>
-  );
+  return <AdminLayoutContent user={user}>{children}</AdminLayoutContent>;
 }
